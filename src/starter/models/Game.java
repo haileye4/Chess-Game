@@ -1,0 +1,130 @@
+package models;
+
+import chess.ChessGame;
+
+import java.util.ArrayList;
+
+/**
+ * represents the game
+ */
+public class Game {
+    /**
+     * gameID
+     */
+    private int gameID;
+    /**
+     * white team username
+     */
+    private String whiteUsername;
+    /**
+     * black team username
+     */
+    private String blackUsername;
+
+    private ArrayList<String> watchers = new ArrayList<String>();
+    /**
+     * game name
+     */
+    private String gameName;
+    /**
+     * game
+     */
+    private ChessGame game;
+
+    /**
+     * get the gameID
+     * @return ID
+     */
+    public int getGameID() {
+        return gameID;
+    }
+
+    /**
+     * set gameID
+     * @param gameID
+     */
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
+    }
+
+    /**
+     * get white team username
+     * @return white team username
+     */
+    public String getWhiteUsername() {
+        return whiteUsername;
+    }
+
+    /**
+     * set white teams username
+     * @param whiteUsername
+     */
+    public void setWhiteUsername(String whiteUsername) {
+        this.whiteUsername = whiteUsername;
+    }
+
+    /**
+     * get black team username
+     * @return black team username
+     */
+    public String getBlackUsername() {
+        return blackUsername;
+    }
+
+    /**
+     * set black team username
+     * @param blackUsername
+     */
+    public void setBlackUsername(String blackUsername) {
+        this.blackUsername = blackUsername;
+    }
+
+    /**
+     * get game name
+     * @return game name
+     */
+    public String getGameName() {
+        return gameName;
+    }
+
+    /**
+     * set the game name
+     * @param gameName
+     */
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    /**
+     * get chess game
+     * @return chess game
+     */
+    public ChessGame getGame() {
+        return game;
+    }
+
+    /**
+     * set the chess game
+     * @param game
+     */
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    public ArrayList<String> getWatchers() {
+        return watchers;
+    }
+
+    public void setWatchers(ArrayList<String> watchers) {
+        this.watchers = watchers;
+    }
+
+    public void addWatcher(String username) {
+        watchers.add(username);
+    }
+}
