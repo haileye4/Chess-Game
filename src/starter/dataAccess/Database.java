@@ -32,30 +32,11 @@ public class Database {
 
     private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306";
 
-    //private final LinkedList<Connection> connections = new LinkedList<>();
-
     /**
-     * Get a connection to the database. This pulls a connection out of a simple
-     * pool implementation. The connection must be returned to the pool after
-     * you are done with it by calling {@link #returnConnection(Connection) returnConnection}.
-     *
-     * @return Connection
+     * Get a connection to the database
+     * @return
+     * @throws DataAccessException
      */
-    /*synchronized public Connection getConnection() throws DataAccessException {
-        try {
-            Connection connection;
-            if (connections.isEmpty()) {
-                connection = DriverManager.getConnection(CONNECTION_URL, DB_USERNAME, DB_PASSWORD);
-                connection.setCatalog(DB_NAME);
-            } else {
-                connection = connections.removeFirst();
-            }
-            return connection;
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }*/
-
     synchronized public Connection getConnection() throws DataAccessException {
         try {
             return DriverManager.getConnection(CONNECTION_URL, DB_USERNAME, DB_PASSWORD);
@@ -64,17 +45,14 @@ public class Database {
         }
     }
 
+    /**
+     * Close the database connection
+     * @param connection
+     * @throws SQLException
+     */
     synchronized public void closeConnection(Connection connection) throws SQLException {
             connection.close();
     }
 
-    /**
-     * Return a previously acquired connection to the pool.
-     *
-     * @param connection previous obtained by calling {@link #getConnection() getConnection}.
-     */
-    /*synchronized public void returnConnection(Connection connection) {
-        connections.add(connection);
-    }*/
 }
 
