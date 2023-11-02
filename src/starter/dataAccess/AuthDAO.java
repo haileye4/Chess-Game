@@ -2,6 +2,9 @@ package dataAccess;
 
 import models.AuthToken;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
@@ -18,8 +21,28 @@ public class AuthDAO {
      * @param token
      * @throws DataAccessException
      */
-    public void create(AuthToken token){
+    public void create(AuthToken token) throws DataAccessException, SQLException {
+        /*String connectionURL = "jdbc:mysql://localhost:3306/chess?" +
+                "user=root&password=mypassword";
+
+        Connection connection = null;
+        try(Connection c = DriverManager.getConnection(connectionURL)) {
+            connection = c;
+
+            // Start a transaction
+            connection.setAutoCommit(false);
+        } catch(SQLException ex) {
+            // ERROR
+        }*/
+        Database database = new Database();
+        Connection connection = database.getConnection();
+
+        //how do I use connection now?
+
         tokens.add(token);
+
+        //NEED TO DELETE CONNECTION!
+        database.closeConnection(connection);
     }
 
     /**

@@ -10,8 +10,6 @@ import responses.ClearApplicationResponse;
  * clear application service
  */
 public class ClearApplicationService extends Service {
-    //hello!
-    //here's another comment
     /**
      * clear application
      * @return response

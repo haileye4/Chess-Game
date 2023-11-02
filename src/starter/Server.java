@@ -1,20 +1,29 @@
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
+import dataAccess.Database;
 import handlers.*;
 import spark.*;
+
+import java.sql.Connection;
 import java.util.*;
 
 public class Server {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DataAccessException {
         new Server().run();
     }
 
-    private void run() {
+    private void run() throws DataAccessException {
         // Specify the port you want the server to listen on
         Spark.port(8080);
 
         // Register a directory for hosting static files
         Spark.externalStaticFileLocation("/Users/haileyjohnson/Desktop/Chess Game/web");
+
+        /*Database database = new Database();
+        Connection connection = database.getConnection();
+        database.returnConnection(connection);*/
+        //pass CONNECTION THROUGH SERVER AND HANDLERS!!!
 
         Spark.post("/user", (req, res) ->
                 (new RegisterHandler()).handleRequest(req, res));
