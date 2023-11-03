@@ -1,6 +1,7 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.AuthToken;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import responses.ListGamesResponse;
 import responses.LoginResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +24,7 @@ class ListGamesServiceTest {
     ListGamesService service = new ListGamesService();
 
     @Test
-    void listGames() {
+    void listGames() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
 
@@ -45,7 +47,7 @@ class ListGamesServiceTest {
     }
 
     @Test
-    void invalidListGames() {
+    void invalidListGames() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthToken fakeUser = new AuthToken("fakeToken", "Silly Sally");
@@ -67,7 +69,7 @@ class ListGamesServiceTest {
                 "Error message not given");
     }
 
-    public void clearEverything() {
+    public void clearEverything() throws SQLException, DataAccessException {
         UserDAO users = new UserDAO();
         GameDAO games = new GameDAO();
         AuthDAO tokens = new AuthDAO();

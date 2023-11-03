@@ -1,6 +1,7 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.AuthToken;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import responses.LogoutResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +20,7 @@ class LogoutServiceTest {
     LogoutService service = new LogoutService();
 
     @Test
-    void logoutTest() {
+    void logoutTest() throws SQLException, DataAccessException {
         clearEverything();
         AuthDAO tokens = new AuthDAO();
 
@@ -40,7 +42,7 @@ class LogoutServiceTest {
     }
 
     @Test
-    void invalidLogout() {
+    void invalidLogout() throws SQLException, DataAccessException {
         clearEverything();
         //logout with an auth token that is not in the database
         AuthToken user1 = new AuthToken("bobToken", "bob");
@@ -58,7 +60,7 @@ class LogoutServiceTest {
                 "Fake authToken was able to logout");
     }
 
-    public void clearEverything() {
+    public void clearEverything() throws SQLException, DataAccessException {
         UserDAO users = new UserDAO();
         GameDAO games = new GameDAO();
         AuthDAO tokens = new AuthDAO();

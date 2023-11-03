@@ -1,6 +1,7 @@
 package handlers;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import models.AuthToken;
 import request.LoginRequest;
 import responses.ListGamesResponse;
@@ -10,10 +11,11 @@ import services.LoginService;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class ListGamesHandler {
-    public Object handleRequest(Request req, Response res) {
+    public Object handleRequest(Request req, Response res) throws SQLException, DataAccessException {
         Gson gson = new Gson();
 
         String authToken = req.headers("authorization");

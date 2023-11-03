@@ -30,7 +30,7 @@ public class Database {
     private static final String DB_USERNAME = "root";
     private static final String DB_PASSWORD = "Hailey333655-q3";
 
-    private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306";
+    private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/chess";
 
     /**
      * Get a connection to the database

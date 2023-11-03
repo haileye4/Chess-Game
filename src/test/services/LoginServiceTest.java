@@ -1,6 +1,7 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.AuthToken;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import request.LoginRequest;
 import responses.LoginResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +21,7 @@ class LoginServiceTest {
     LoginService service = new LoginService();
 
     @Test
-    void normalLogin() {
+    void normalLogin() throws SQLException, DataAccessException {
         clearEverything();
         User user1 = new User("noah","1234", "coolGuy@gmail.com");
         User user2 = new User("hailey", "love00", "happy.email.com");
@@ -50,7 +52,7 @@ class LoginServiceTest {
     }
 
     @Test
-    void invalidLogin() {
+    void invalidLogin() throws SQLException, DataAccessException {
         clearEverything();
         User user1 = new User("noah","1234", "coolGuy@gmail.com");
         testUsers.add(user1);
@@ -74,7 +76,7 @@ class LoginServiceTest {
         //check to see if they are in auth token DAO
     }
 
-    public void clearEverything() {
+    public void clearEverything() throws SQLException, DataAccessException {
         UserDAO users = new UserDAO();
         GameDAO games = new GameDAO();
         AuthDAO tokens = new AuthDAO();

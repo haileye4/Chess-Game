@@ -1,9 +1,11 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import models.AuthToken;
 import responses.LogoutResponse;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 /**
@@ -14,7 +16,7 @@ public class LogoutService extends Service {
      * logout of server
      * @return response
      */
-    public LogoutResponse logout(String authToken) {
+    public LogoutResponse logout(String authToken) throws SQLException, DataAccessException {
         LogoutResponse response = new LogoutResponse();
         AuthDAO tokens = new AuthDAO();
 

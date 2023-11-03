@@ -2,6 +2,7 @@ package services;
 
 import chess.ChessGame;
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import models.AuthToken;
 import models.Game;
@@ -9,6 +10,7 @@ import models.User;
 import request.JoinGameRequest;
 import responses.JoinGameResponse;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 /**
@@ -22,7 +24,7 @@ public class JoinGameService extends Service {
      * @param authToken
      * @return response
      */
-    public JoinGameResponse joinGame(JoinGameRequest request, String authToken) {
+    public JoinGameResponse joinGame(JoinGameRequest request, String authToken) throws SQLException, DataAccessException {
         JoinGameResponse response = new JoinGameResponse();
 
         AuthDAO tokens = new AuthDAO();

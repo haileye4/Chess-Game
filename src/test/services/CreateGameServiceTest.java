@@ -1,6 +1,7 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.AuthToken;
@@ -9,13 +10,15 @@ import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
 import responses.CreateGameResponse;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CreateGameServiceTest {
     CreateGameService service = new CreateGameService();
 
     @Test
-    void createGame() {
+    void createGame() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthDAO tokens = new AuthDAO();
@@ -32,7 +35,7 @@ class CreateGameServiceTest {
     }
 
     @Test
-    void badRequest() {
+    void badRequest() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthDAO tokens = new AuthDAO();
@@ -48,7 +51,7 @@ class CreateGameServiceTest {
     }
 
     @Test
-    void unauthorized() {
+    void unauthorized() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthDAO tokens = new AuthDAO();
@@ -65,7 +68,7 @@ class CreateGameServiceTest {
                 "Error message not received");
     }
 
-    public void clearEverything() {
+    public void clearEverything() throws SQLException, DataAccessException {
         UserDAO users = new UserDAO();
         GameDAO games = new GameDAO();
         AuthDAO tokens = new AuthDAO();

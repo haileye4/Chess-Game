@@ -2,6 +2,7 @@ package services;
 
 import chess.ChessGame;
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.User;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import request.RegisterRequest;
 import responses.RegisterResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +23,7 @@ class RegisterServiceTest {
     RegisterService service = new RegisterService();
 
     @Test
-    void register() {
+    void register() throws SQLException, DataAccessException {
         clearEverything();
         //test a basic register
         User user1 = new User("noah","1234", "coolGuy@gmail.com");
@@ -46,7 +48,7 @@ class RegisterServiceTest {
     }
 
     @Test
-    void registerBadRequest() {
+    void registerBadRequest() throws SQLException, DataAccessException {
         clearEverything();
         //register someone with no username
         RegisterRequest badRequest = new RegisterRequest(null,"1234", "coolGuy@gmail.com");
@@ -67,7 +69,7 @@ class RegisterServiceTest {
     }
 
     @Test
-    void registerExistingUser() {
+    void registerExistingUser() throws SQLException, DataAccessException {
         clearEverything();
         //register someone who is already in the database
         User noah = new User("noah","1234", "coolGuy@gmail.com");
@@ -94,7 +96,7 @@ class RegisterServiceTest {
                 "Did not get correct error message");
     }
 
-    public void clearEverything() {
+    public void clearEverything() throws SQLException, DataAccessException {
         UserDAO users = new UserDAO();
         GameDAO games = new GameDAO();
         AuthDAO tokens = new AuthDAO();

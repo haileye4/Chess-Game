@@ -8,6 +8,7 @@ import models.User;
 import request.LoginRequest;
 import responses.LoginResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class LoginService extends Service {
      * @param request
      * @return response
      */
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) throws SQLException, DataAccessException {
         String username = request.getUsername();
         String password = request.getPassword();
 

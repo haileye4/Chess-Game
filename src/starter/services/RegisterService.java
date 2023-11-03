@@ -1,12 +1,14 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
 import models.AuthToken;
 import models.User;
 import request.RegisterRequest;
 import responses.RegisterResponse;
 
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,7 +21,7 @@ public class RegisterService extends Service {
      * @param request
      * @return response
      */
-    public RegisterResponse register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) throws SQLException, DataAccessException {
         String username = request.getUsername();
         String password = request.getPassword();
         String email = request.getEmail();

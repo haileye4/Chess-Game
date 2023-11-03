@@ -1,12 +1,14 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import models.AuthToken;
 import models.Game;
 import responses.ListGamesResponse;
 import responses.LogoutResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -18,7 +20,7 @@ public class ListGamesService extends Service {
      * list games
      * @return response
      */
-    public ListGamesResponse listGames(String authToken) {
+    public ListGamesResponse listGames(String authToken) throws SQLException, DataAccessException {
         ListGamesResponse response = new ListGamesResponse();
         AuthDAO tokens = new AuthDAO();
 

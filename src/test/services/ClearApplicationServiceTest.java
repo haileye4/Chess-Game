@@ -1,6 +1,7 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.AuthToken;
@@ -9,13 +10,15 @@ import models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClearApplicationServiceTest {
     ClearApplicationService service = new ClearApplicationService();
 
     @Test
-    void clearApplication() {
+    void clearApplication() throws SQLException, DataAccessException {
         //make sure this service clears the databases...
         UserDAO users = new UserDAO();
         AuthDAO tokens = new AuthDAO();

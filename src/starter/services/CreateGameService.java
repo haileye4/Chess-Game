@@ -1,12 +1,14 @@
 package services;
 
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import models.AuthToken;
 import models.Game;
 import request.CreateGameRequest;
 import responses.CreateGameResponse;
 
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -20,7 +22,7 @@ public class CreateGameService extends Service {
      * @param request
      * @return response
      */
-    public CreateGameResponse createGame(CreateGameRequest request, String authToken) {
+    public CreateGameResponse createGame(CreateGameRequest request, String authToken) throws SQLException, DataAccessException {
         CreateGameResponse response = new CreateGameResponse();
 
         //check to make sure there is a gameName

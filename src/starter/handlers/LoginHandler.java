@@ -2,17 +2,19 @@ package handlers;
 //package request;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import request.LoginRequest;
 import responses.LoginResponse;
 import services.LoginService;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class LoginHandler {
 
-    public Object handleRequest(Request req, Response res) {
+    public Object handleRequest(Request req, Response res) throws SQLException, DataAccessException {
         //Get JSON data
         String reqData = req.body();
 

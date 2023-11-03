@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Objects;
+
 /**
  * represents authentication token
  */
@@ -54,8 +56,22 @@ public class AuthToken {
         this.username = username;
     }
 
+    /**
+     * equals method to decide if an object is equal to the authToken
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+        // Check if the object is an instance of AuthToken
+        if (!(obj instanceof AuthToken)) {
+            return false;
+        }
+
+        AuthToken token = (AuthToken) obj;
+
+        // Compare authToken and username
+        return Objects.equals(token.getAuthToken(), authToken) &&
+                Objects.equals(token.getUsername(), username);
     }
 }

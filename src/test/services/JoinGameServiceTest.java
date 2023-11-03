@@ -2,6 +2,7 @@ package services;
 
 import chess.ChessGame;
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
 import models.AuthToken;
@@ -12,6 +13,7 @@ import request.JoinGameRequest;
 import responses.JoinGameResponse;
 import responses.ListGamesResponse;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +25,7 @@ class JoinGameServiceTest {
     JoinGameService service = new JoinGameService();
 
     @Test
-    void joinGame() {
+    void joinGame() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
 
@@ -52,7 +54,7 @@ class JoinGameServiceTest {
     }
 
     @Test
-    void unauthorizedRequest() {
+    void unauthorizedRequest() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthDAO tokens = new AuthDAO();
@@ -72,7 +74,7 @@ class JoinGameServiceTest {
     }
 
     @Test
-    void gameDoesntExist() {
+    void gameDoesntExist() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthDAO tokens = new AuthDAO();
@@ -92,7 +94,7 @@ class JoinGameServiceTest {
     }
 
     @Test
-    void teamAlreadyTaken() {
+    void teamAlreadyTaken() throws SQLException, DataAccessException {
         clearEverything();
         AuthToken testUser = new AuthToken("fancyToken", "Billy Jean");
         AuthDAO tokens = new AuthDAO();
@@ -112,7 +114,7 @@ class JoinGameServiceTest {
                 "User joined a team that was already taken");
     }
 
-    public void clearEverything() {
+    public void clearEverything() throws SQLException, DataAccessException {
         UserDAO users = new UserDAO();
         GameDAO games = new GameDAO();
         AuthDAO tokens = new AuthDAO();

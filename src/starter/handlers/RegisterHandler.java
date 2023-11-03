@@ -1,6 +1,7 @@
 package handlers;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import request.LoginRequest;
 import request.RegisterRequest;
 import responses.LoginResponse;
@@ -10,10 +11,11 @@ import services.RegisterService;
 import spark.Request;
 import spark.Response;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class RegisterHandler {
-    public Object handleRequest(Request req, Response res) {
+    public Object handleRequest(Request req, Response res) throws SQLException, DataAccessException {
         //Get JSON data
         String reqData = req.body();
 
