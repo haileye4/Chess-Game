@@ -9,10 +9,6 @@ import java.util.ArrayList;
  * stores authTokens in the database
  */
 public class AuthDAO {
-    /**
-     * list that holds authTokens (for now)
-     */
-    static ArrayList<AuthToken> tokens = new ArrayList<AuthToken>();
 
     /**
      * create a new authentication token
@@ -40,8 +36,6 @@ public class AuthDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        tokens.add(token);
 
         //NEED TO DELETE CONNECTION!
         database.closeConnection(connection);
@@ -163,7 +157,6 @@ public class AuthDAO {
         }
 
         database.closeConnection(connection);
-        tokens.remove(token);
     }
 
     /**

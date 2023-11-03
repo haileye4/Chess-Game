@@ -53,4 +53,17 @@ public class AuthDAOTest {
         tokens.clear();
     }
 
+    @Test
+    public void delete() throws SQLException, DataAccessException {
+        tokens.clear();
+        AuthToken token = new AuthToken("fancyToken", "Mr.Fancy1234");
+        tokens.create(token);
+
+        tokens.delete(token);
+        ArrayList<AuthToken> shouldBeEmpty = tokens.read();
+
+        Assertions.assertTrue(shouldBeEmpty.isEmpty(), "Didn't delete authToken correctly");
+        tokens.clear();
+    }
+
 }
