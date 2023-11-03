@@ -31,6 +31,7 @@ public class AuthDAOTest {
 
     @Test
     public void read() throws SQLException, DataAccessException {
+        tokens.clear();
         AuthToken token1 = new AuthToken("fancyToken", "Mr.Fancy1234");
         AuthToken token2 = new AuthToken("superSecretStuff", "JamesBond");
         AuthToken token3 = new AuthToken("topSecret", "JohnSmith");
