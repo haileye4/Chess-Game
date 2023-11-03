@@ -32,6 +32,32 @@ public class Game {
     private ChessGame game;
 
     /**
+     * constructor with all parameters
+     * @param id
+     * @param white
+     * @param black
+     * @param watchers
+     * @param gameName
+     * @param game
+     */
+    public Game(int id, String white, String black, ArrayList<String> watchers,
+                String gameName, ChessGame game) {
+        gameID = id;
+        whiteUsername = white;
+        blackUsername = black;
+        this.watchers = watchers;
+        this.gameName = gameName;
+        this.game = game;
+    }
+
+    /**
+     * basic constructor
+     */
+    public Game() {
+
+    }
+
+    /**
      * get the gameID
      * @return ID
      */
