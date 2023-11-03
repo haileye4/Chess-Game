@@ -2,9 +2,7 @@ package dataAccess;
 
 import models.AuthToken;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 /**
@@ -22,22 +20,16 @@ public class AuthDAO {
      * @throws DataAccessException
      */
     public void create(AuthToken token) throws DataAccessException, SQLException {
-        /*String connectionURL = "jdbc:mysql://localhost:3306/chess?" +
-                "user=root&password=mypassword";
-
-        Connection connection = null;
-        try(Connection c = DriverManager.getConnection(connectionURL)) {
-            connection = c;
-
-            // Start a transaction
-            connection.setAutoCommit(false);
-        } catch(SQLException ex) {
-            // ERROR
-        }*/
         Database database = new Database();
         Connection connection = database.getConnection();
 
         //how do I use connection now?
+        String sql = "insert into authToken (authToken, username) values (?, ?)";
+
+        try(PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, token.getAuthToken());
+            stmt.setString(2, token.getUsername());
+        }
 
         tokens.add(token);
 
@@ -50,7 +42,28 @@ public class AuthDAO {
      * @return list of authTokens
      * @throws DataAccessException
      */
-    public ArrayList<AuthToken> read() {
+    public ArrayList<AuthToken> read() throws DataAccessException, SQLException {
+        Database database = new Database();
+        Connection connection = database.getConnection();
+
+        ArrayList<AuthToken> tokens = new ArrayList<>();
+
+        String sql = "select authToken, username from authToken";
+
+        try(PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while(rs.next()) {
+                String authToken = rs.getString(1);
+                String username = rs.getString(2);
+
+                tokens.add(new AuthToken(authToken, username));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        database.closeConnection(connection);
         return tokens;
     }
 
