@@ -13,8 +13,6 @@ import java.util.Objects;
 
 public class UserDAOTest {
     UserDAO users = new UserDAO();
-    //try to insert a user with the same username
-    //try to find something that's not there
     @Test
     public void insertUser() throws SQLException, DataAccessException {
         //create a new user and insert into database
@@ -27,6 +25,35 @@ public class UserDAOTest {
 
         Assertions.assertEquals(true, found,
                 "User inserted was not found");
+
+        users.clear();
+    }
+
+    @Test
+    public void badInsert() throws SQLException, DataAccessException {
+        users.clear();
+        //attempt to insert someone with an already used username
+        User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
+        users.create(newUser);
+
+        User duplicateUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
+        Assertions.assertThrows(DataAccessException.class, () -> users.create(duplicateUser));
+        users.clear();
+    }
+
+    @Test
+    public void badFind() throws SQLException, DataAccessException {
+        //try to find a user that is not there
+        User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
+        User newUser2 = new User("PapaElf", "milkAndCookies", "headElf@gmail.com");
+
+        users.create(newUser);
+        users.create(newUser2);
+
+        //see if invalid user is found in the database
+        User userFound = users.find("reindeerDasher");
+
+        Assertions.assertNull(userFound, "User not inserted was still found");
 
         users.clear();
     }
@@ -59,18 +86,29 @@ public class UserDAOTest {
     }
     @Test
     public void deleteUser() throws SQLException, DataAccessException {
-        users.clear();
         //create a new user and insert into database
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
         users.create(newUser);
 
-        //see if new user is found in the database
+        //delete new user
+        users.delete(newUser);
         User userFound = users.find("SantaClaus");
-        Boolean found = userFound.equals(newUser);
 
         // LOOK AT INVALID MOVES TEST Assertions.assertThrows(DataAccessException.class, users.read() )
-        Assertions.assertEquals(true, found,
-                "User inserted was not found");
+        Assertions.assertNull(userFound,
+                "User was not deleted from database");
+
+        users.clear();
+    }
+
+    @Test
+    public void badDelete() throws SQLException, DataAccessException {
+        //delete a user which does not exist
+        User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
+        users.create(newUser);
+
+        User nonexistentUser = new User("PapaElf", "milkAndCookies", "headElf@gmail.com");
+        Assertions.assertThrows(DataAccessException.class, () -> users.delete(nonexistentUser));
 
         users.clear();
     }

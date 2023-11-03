@@ -42,7 +42,7 @@ public class UserDAO {
             // Log or handle the result as needed
             System.out.println("Added user into user table");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Could not insert user into the database");
         }
 
         //NEED TO DELETE CONNECTION!
@@ -72,7 +72,7 @@ public class UserDAO {
                 users.add(new User(username, password, email));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Can not read out users");
         }
 
         database.closeConnection(connection);
@@ -96,7 +96,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error while finding AuthToken");
+            throw new DataAccessException("Error finding authToken");
         } finally {
             // Close the connection
             database.closeConnection(connection);
@@ -163,7 +163,7 @@ public class UserDAO {
             // Log or handle the result as needed
             System.out.println("Deleted user from user table");
         } catch (SQLException e) {
-            throw new DataAccessException("Error while deleting user");
+            throw new DataAccessException("Error deleting user");
         }
 
         database.closeConnection(connection);
@@ -182,7 +182,7 @@ public class UserDAO {
             // Log or handle the result as needed
             System.out.println("Cleared " + affectedRows + " records from user table");
         } catch (SQLException e) {
-            throw new DataAccessException("Error while clearing user table");
+            throw new DataAccessException("Error clearing user table");
         } finally {
             // Close the connection
             database.closeConnection(connection);

@@ -34,7 +34,7 @@ public class AuthDAO {
                 throw new SQLException("Inserting token failed, no rows affected.");
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Could not insert new authToken into the database");
         }
 
         //NEED TO DELETE CONNECTION!
@@ -64,7 +64,7 @@ public class AuthDAO {
                 tokens.add(new AuthToken(authToken, username));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Can not read out authTokens");
         }
 
         database.closeConnection(connection);
@@ -92,7 +92,7 @@ public class AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error while finding AuthToken");
+            throw new DataAccessException("Error finding AuthToken");
         } finally {
             // Close the connection
             database.closeConnection(connection);
@@ -153,7 +153,7 @@ public class AuthDAO {
                 throw new SQLException("Deleting token failed, no matching rows found.");
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error while deleting AuthToken");
+            throw new DataAccessException("Error deleting AuthToken");
         }
 
         database.closeConnection(connection);
@@ -177,7 +177,7 @@ public class AuthDAO {
             // Log or handle the result as needed
             System.out.println("Cleared " + affectedRows + " records from authToken table");
         } catch (SQLException e) {
-            throw new DataAccessException("Error while clearing authToken table");
+            throw new DataAccessException("Error clearing authToken table");
         } finally {
             // Close the connection
             database.closeConnection(connection);

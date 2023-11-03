@@ -3,6 +3,7 @@ package database;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import models.AuthToken;
+import models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class AuthDAOTest {
-    //make sure to clear once you are done with test
     AuthDAO tokens = new AuthDAO();
     @Test
     public void insert() throws SQLException, DataAccessException {
@@ -25,6 +25,32 @@ public class AuthDAOTest {
 
         Assertions.assertEquals(true, found,
                 "Token inserted was not found");
+
+        tokens.clear();
+    }
+
+    @Test
+    public void badInsert() throws SQLException, DataAccessException {
+        tokens.clear();
+        //attempt to insert someone with an already used username
+        AuthToken token = new AuthToken("specialToken", "happyCow4");
+        tokens.create(token);
+
+        AuthToken duplicateToken = new AuthToken("specialToken", "happyCow4");
+        Assertions.assertThrows(DataAccessException.class, () -> tokens.create(duplicateToken));
+
+    }
+
+    @Test
+    public void badFind() throws SQLException, DataAccessException {
+        //try to find a user that is not there
+        AuthToken token1 = new AuthToken("cookiesAndMilk", "SantaClaus");
+        tokens.create(token1);
+
+        //see if invalid authToken is found in the database
+        AuthToken tokenFound = tokens.find("milkAndCookies");
+
+        Assertions.assertNull(tokenFound, "AuthToken not inserted was still found");
 
         tokens.clear();
     }
@@ -56,7 +82,6 @@ public class AuthDAOTest {
 
     @Test
     public void delete() throws SQLException, DataAccessException {
-        tokens.clear();
         AuthToken token = new AuthToken("fancyToken", "Mr.Fancy1234");
         tokens.create(token);
 
@@ -64,6 +89,18 @@ public class AuthDAOTest {
         ArrayList<AuthToken> shouldBeEmpty = tokens.read();
 
         Assertions.assertTrue(shouldBeEmpty.isEmpty(), "Didn't delete authToken correctly");
+        tokens.clear();
+    }
+
+    @Test
+    public void badDelete() throws SQLException, DataAccessException {
+        //try to delete a token that's not there
+        AuthToken token = new AuthToken("fancyToken", "Mr.Fancy1234");
+        tokens.create(token);
+
+        AuthToken nonexistentToken = new AuthToken("notFound", "helloWorld");
+
+        Assertions.assertThrows(DataAccessException.class, () -> tokens.delete(nonexistentToken));
         tokens.clear();
     }
 
