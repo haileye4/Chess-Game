@@ -54,6 +54,8 @@ public class CreateGameService extends Service {
         //set a new chess game
         newGame.setGame(new chess.Game());
         //do I need to also set white and black username?
+        newGame.setWhiteUsername(request.getWhiteUsername());
+        newGame.setBlackUsername(request.getBlackUsername());
 
         GameDAO games = new GameDAO();
         games.create(newGame);
