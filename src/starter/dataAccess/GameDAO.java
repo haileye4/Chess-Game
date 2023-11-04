@@ -56,9 +56,9 @@ public class GameDAO {
             }
 
             // Log or handle the result as needed
-            System.out.println("Added game into user table");
+            System.out.println("Added game into game table");
         } catch (SQLException e) {
-            throw new DataAccessException("Could not insert user into the database");
+            throw new DataAccessException("Could not insert game into the database");
         }
 
         //NEED TO DELETE CONNECTION!
@@ -166,10 +166,43 @@ public class GameDAO {
      * @throws DataAccessException
      */
 
-    public void update(Game game) throws DataAccessException{
-        if (!games.contains(game)) {
-            throw new DataAccessException("Nonexistent game");
+    public void update(Game game) throws DataAccessException, SQLException {
+        Database database = new Database();
+        Connection connection = database.getConnection();
+
+        //how do I use connection now?
+        String sql = "update game " +
+                "set gameID = ?, whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? " +
+                "where gameID = ?";
+
+        try(PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, game.getGameID());
+            stmt.setString(2, game.getWhiteUsername());
+            stmt.setString(3, game.getBlackUsername());
+            stmt.setString(4, game.getGameName());
+
+            // Serialize and store the chess game JSON.
+            var json = new Gson().toJson(game.getGame());
+            stmt.setString(5, json);
+
+            stmt.setInt(6, game.getGameID());
+
+            // Execute the SQL statement
+            int affectedRows = stmt.executeUpdate();
+
+            // Check if any rows were affected
+            if (affectedRows == 0) {
+                throw new SQLException("Updating game failed, no rows affected.");
+            }
+
+            // Log or handle the result as needed
+            System.out.println("Updated game into game table");
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not update game into the database");
         }
+
+        //NEED TO DELETE CONNECTION!
+        database.closeConnection(connection);
     }
 
     /**

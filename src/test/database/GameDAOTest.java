@@ -134,4 +134,43 @@ public class GameDAOTest {
 
         games.clear();
     }
+
+    @Test
+    public void updateGame() throws SQLException, DataAccessException {
+        games.clear();
+
+        chess.Game myGame = new chess.Game();
+        myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+        myGame.setBoard(new Board());
+        Game game = new Game(1234, "white", "black", "myCoolGame", myGame);
+
+        games.create(game);
+
+        //try to update game now...
+        game.setGameName("newGameNameToUpdate");
+        games.update(game);
+
+        Assertions.assertEquals("newGameNameToUpdate", games.find(1234).getGameName(),
+                "Game was not updated correctly");
+
+        games.clear();
+    }
+
+    @Test
+    public void badUpdate() throws SQLException, DataAccessException {
+        games.clear();
+
+        chess.Game myGame = new chess.Game();
+        myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+        myGame.setBoard(new Board());
+        Game game = new Game(1234, "white", "black", "myCoolGame", myGame);
+
+        games.create(game);
+
+        //try to update a game NOT in the database now...
+        Game fakeGame = new Game(5678, "white", "black", "myDifferentCoolGame", myGame);
+        Assertions.assertThrows(DataAccessException.class, () -> games.update(fakeGame));
+
+        games.clear();
+    }
 }
