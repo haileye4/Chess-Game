@@ -53,6 +53,7 @@ public class CreateGameService extends Service {
         newGame.setGameID(gameID); //generate a random 4 digit ID
         //set a new chess game
         newGame.setGame(new chess.Game());
+
         //do I need to also set white and black username?
         newGame.setWhiteUsername(request.getWhiteUsername());
         newGame.setBlackUsername(request.getBlackUsername());

@@ -85,8 +85,10 @@ public class JoinGameService extends Service {
             if (game.getGameID() == gameID) {
                 if (request.getPlayerColor() == ChessGame.TeamColor.WHITE) {
                     game.setWhiteUsername(username);
+                    games.update(game);
                 } else if (request.getPlayerColor() == ChessGame.TeamColor.BLACK) {
                     game.setBlackUsername(username);
+                    games.update(game);
                 } else if (request.getPlayerColor() == null) {
                     User watcher = new User();
                     game.addWatcher(username);
