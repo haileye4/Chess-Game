@@ -13,6 +13,18 @@ import java.util.Objects;
 
 public class AuthDAOTest {
     AuthDAO tokens = new AuthDAO();
+
+    @Test
+    public void clear() throws SQLException, DataAccessException {
+        AuthToken token = new AuthToken("fancyToken", "Mr.Fancy1234");
+        tokens.create(token);
+
+        tokens.clear();
+        ArrayList<AuthToken> shouldBeEmpty = tokens.read();
+
+        Assertions.assertTrue(shouldBeEmpty.isEmpty(), "Didn't clear tokens correctly");
+    }
+
     @Test
     public void insert() throws SQLException, DataAccessException {
         //create an authToken to test insert

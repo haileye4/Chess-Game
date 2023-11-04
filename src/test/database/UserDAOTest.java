@@ -13,6 +13,19 @@ import java.util.Objects;
 
 public class UserDAOTest {
     UserDAO users = new UserDAO();
+
+    @Test
+    public void clear() throws SQLException, DataAccessException {
+        //create a new user and insert into database
+        User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
+        users.create(newUser);
+
+        users.clear();
+        ArrayList<User> shouldBeEmpty = users.read();
+
+        Assertions.assertTrue(shouldBeEmpty.isEmpty(), "Didn't clear users correctly");
+    }
+
     @Test
     public void insertUser() throws SQLException, DataAccessException {
         //create a new user and insert into database

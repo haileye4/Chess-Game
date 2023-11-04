@@ -4,6 +4,7 @@ import chess.Board;
 import chess.ChessGame;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
+import models.AuthToken;
 import models.Game;
 import models.User;
 import org.junit.jupiter.api.Assertions;
@@ -15,6 +16,22 @@ import java.util.Objects;
 
 public class GameDAOTest {
     GameDAO games = new GameDAO();
+
+    @Test
+    public void clear() throws SQLException, DataAccessException {
+        chess.Game myGame = new chess.Game();
+        myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+        myGame.setBoard(new Board());
+        Game game = new Game(1234, "white", "black", "myCoolGame", myGame);
+
+        games.create(game);
+
+        games.clear();
+        ArrayList<Game> shouldBeEmpty = games.read();
+
+        Assertions.assertTrue(shouldBeEmpty.isEmpty(), "Didn't clear games correctly");
+    }
+
     @Test
     public void insertGame() throws SQLException, DataAccessException {
         games.clear();
