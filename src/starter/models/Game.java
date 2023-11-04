@@ -3,6 +3,7 @@ package models;
 import chess.ChessGame;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * represents the game
@@ -156,7 +157,17 @@ public class Game {
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj);
+        if (!(obj instanceof Game)) {
+            return false;
+        }
+
+        Game game = (Game) obj;
+
+        // Compare authToken and username
+        return Objects.equals(game.getGameID(), gameID) &&
+                Objects.equals(game.getWhiteUsername(), whiteUsername) &&
+                Objects.equals(game.getBlackUsername(), blackUsername) &&
+                Objects.equals(game.getGameName(), gameName);
     }
 
     public ArrayList<String> getWatchers() {
@@ -169,5 +180,10 @@ public class Game {
 
     public void addWatcher(String username) {
         watchers.add(username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(gameID, whiteUsername, blackUsername, watchers, gameName, game);
     }
 }

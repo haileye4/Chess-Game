@@ -110,20 +110,43 @@ public class GameDAO {
         return games;
     }
 
-    /*public User find(String username) throws DataAccessException, SQLException {
+    /**
+     * find a game in the database
+     * @param gameID
+     * @return
+     * @throws DataAccessException
+     * @throws SQLException
+     */
+    public Game find(int gameID) throws DataAccessException, SQLException {
         Database database = new Database();
         Connection connection = database.getConnection();
 
-        String sql = "select username, password, email from user where username = ?";
+        String sql = "select gameID, whiteUsername, blackUsername," +
+                " gameName, game from game where gameID = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, username);
+            stmt.setInt(1, gameID);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    String password = rs.getString("password");
-                    String email = rs.getString("email");
-                    return new User(username, password, email);
+                    String whiteUsername = rs.getString("whiteUsername");
+                    String blackUsername = rs.getString("blackUsername");
+                    String gameName = rs.getString("gameName");
+
+                    //deserialize the JSON of the game data
+                    var json = rs.getString("game");
+
+                    //var game = new Gson().fromJson(json, chess.Game.class);
+                    var builder = new GsonBuilder();
+
+                    Gson gson = builder.registerTypeAdapter(ChessGame.class, new ChessGameAdapter())
+                            .registerTypeAdapter(ChessBoard.class, new ChessBoardAdapter())
+                            .registerTypeAdapter(ChessPiece.class, new ChessPieceAdapter())
+                            .create();
+
+                    var game = gson.fromJson(json, chess.Game.class);
+
+                    return new Game(gameID, whiteUsername, blackUsername, gameName, game);
                 }
             }
         } catch (SQLException e) {
@@ -135,7 +158,7 @@ public class GameDAO {
 
         // If no matching token is found, return null or handle appropriately
         return null;
-    }*/
+    }
 
     /**
      * update a game
