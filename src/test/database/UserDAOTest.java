@@ -87,6 +87,8 @@ public class UserDAOTest {
     }
 
     @Test
+    //This test is not needed for the assignment. Just making sure my personal read() function
+    // lists out all the games correctly
     public void readUsers() throws SQLException, DataAccessException {
         users.clear();
         //create a new user and insert into database

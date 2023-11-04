@@ -83,6 +83,8 @@ public class AuthDAOTest {
     }
 
     @Test
+    //This test is not needed for the assignment. Just making sure my personal read() function
+    // lists out all the games correctly
     public void read() throws SQLException, DataAccessException {
         tokens.clear();
         AuthToken token1 = new AuthToken("fancyToken", "Mr.Fancy1234");
