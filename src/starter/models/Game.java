@@ -41,11 +41,28 @@ public class Game {
      * @param game
      */
     public Game(int id, String white, String black, ArrayList<String> watchers,
-                String gameName, ChessGame game) {
+                String gameName, chess.Game game) {
         gameID = id;
         whiteUsername = white;
         blackUsername = black;
         this.watchers = watchers;
+        this.gameName = gameName;
+        this.game = game;
+    }
+
+    /**
+     * another constructor for JSON deserialization in database
+     * @param id
+     * @param white
+     * @param black
+     * @param gameName
+     * @param game
+     */
+    public Game(int id, String white, String black,
+                String gameName, ChessGame game) {
+        gameID = id;
+        whiteUsername = white;
+        blackUsername = black;
         this.gameName = gameName;
         this.game = game;
     }

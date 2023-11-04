@@ -6,6 +6,12 @@ import java.util.Collection;
 public class Game implements ChessGame {
     ChessBoard board;
     ChessGame.TeamColor teamTurn;
+    /**
+     * no args constructor
+     */
+    public Game() {
+
+    }
     @Override
     public TeamColor getTeamTurn() {
         return teamTurn;

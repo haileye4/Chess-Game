@@ -3,6 +3,11 @@ package chess;
 public class Board implements ChessBoard{
     private ChessPiece[][] board = new ChessPiece[8][8]; //store the pieces in a 2D Array!
 
+    /**
+     * no args constructor
+     */
+    public Board() {
+    }
     @Override
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow()][position.getColumn()] = piece;

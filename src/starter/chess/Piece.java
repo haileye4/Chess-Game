@@ -10,6 +10,13 @@ public abstract class Piece implements ChessPiece  {
       //  this.position = spot;
     //}
 
+    /**
+     * no args constructor
+     */
+    public Piece() {
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,7 +1,10 @@
 package dataAccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import models.Game;
 import models.User;
 
@@ -10,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+//import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 
 /**
  * stores games in the database
@@ -66,7 +70,43 @@ public class GameDAO {
      * @return list of games
      * @throws DataAccessException
      */
-    public ArrayList<Game> read() /*throws DataAccessException*/{
+    public ArrayList<Game> read() throws DataAccessException, SQLException {
+        Database database = new Database();
+        Connection connection = database.getConnection();
+
+        ArrayList<Game> games = new ArrayList<>();
+
+        String sql = "select gameID, whiteUsername, blackUsername, gameName, game from game";
+
+        try(PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while(rs.next()) {
+                int gameID = rs.getInt(1);
+                String whiteUsername = rs.getString(2);
+                String blackUsername = rs.getString(3);
+                String gameName = rs.getString(4);
+
+                //deserialize the JSON of the game data
+                var json = rs.getString(5);
+
+                //var game = new Gson().fromJson(json, chess.Game.class);
+                var builder = new GsonBuilder();
+
+                Gson gson = builder.registerTypeAdapter(ChessGame.class, new ChessGameAdapter())
+                        .registerTypeAdapter(ChessBoard.class, new ChessBoardAdapter())
+                        .registerTypeAdapter(ChessPiece.class, new ChessPieceAdapter())
+                        .create();
+
+                var game = gson.fromJson(json, chess.Game.class);
+
+                games.add(new Game(gameID, whiteUsername, blackUsername, gameName, game));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Can not read out games");
+        }
+
+        database.closeConnection(connection);
         return games;
     }
 
