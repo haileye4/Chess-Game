@@ -107,38 +107,6 @@ public class UserDAO {
     }
 
     /**
-     * update a user in the database
-     * @param user
-     * @throws DataAccessException
-     */
-    /*public void update(User user) throws DataAccessException, SQLException {
-        //WHAT AM I UPDATING?
-        Database database = new Database();
-        Connection connection = database.getConnection();
-
-        String sql = "update authToken " +
-                "set authToken = ? " +
-                "where username = ?";
-
-        try(PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, token.getAuthToken());
-            stmt.setString(2, token.getUsername());
-
-            // Execute the SQL statement
-            int affectedRows = stmt.executeUpdate();
-
-            // Check if any rows were affected
-            if (affectedRows == 0) {
-                throw new SQLException("Deleting token failed, no matching rows found.");
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error while deleting AuthToken");
-        }
-
-        database.closeConnection(connection);
-    }*/
-
-    /**
      * delete a user
      * @param user
      * @throws DataAccessException

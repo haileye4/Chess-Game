@@ -55,6 +55,21 @@ public class UserDAOTest {
     }
 
     @Test
+    public void find() throws SQLException, DataAccessException {
+        //try to find a user
+        User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
+        users.create(newUser);
+
+        //see if authToken is found in the database
+        User userFound = users.find("SantaClaus");
+
+        Boolean areEqual = Objects.equals(userFound, newUser);
+        Assertions.assertEquals(true, areEqual,
+                "user was not found");
+
+        users.clear();
+    }
+    @Test
     public void badFind() throws SQLException, DataAccessException {
         //try to find a user that is not there
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");

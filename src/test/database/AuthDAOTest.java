@@ -54,8 +54,23 @@ public class AuthDAOTest {
     }
 
     @Test
+    public void find() throws SQLException, DataAccessException {
+        //try to find an authToken
+        AuthToken token1 = new AuthToken("cookiesAndMilk", "SantaClaus");
+        tokens.create(token1);
+
+        //see if authToken is found in the database
+        AuthToken tokenFound = tokens.find("cookiesAndMilk");
+
+        Boolean areEqual = Objects.equals(tokenFound, token1);
+        Assertions.assertEquals(true, areEqual,
+                "token was not found");
+
+        tokens.clear();
+    }
+    @Test
     public void badFind() throws SQLException, DataAccessException {
-        //try to find a user that is not there
+        //try to find a token that is not there
         AuthToken token1 = new AuthToken("cookiesAndMilk", "SantaClaus");
         tokens.create(token1);
 

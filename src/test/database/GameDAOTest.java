@@ -70,6 +70,26 @@ public class GameDAOTest {
     }
 
     @Test
+    public void find() throws SQLException, DataAccessException {
+        //create a new game and insert into database
+        chess.Game myGame = new chess.Game();
+        myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+        myGame.setBoard(new Board());
+
+        Game game = new Game(1234, "white", "black", "myCoolGame", myGame);
+        games.create(game);
+
+        //see if authToken is found in the database
+        Game gameFound = games.find(1234);
+
+        Boolean areEqual = Objects.equals(gameFound, game);
+        Assertions.assertEquals(true, areEqual,
+                "game was not found");
+
+        games.clear();
+    }
+
+    @Test
     public void badFind() throws SQLException, DataAccessException {
         //try to find a user that is not there
         games.clear();
