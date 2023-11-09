@@ -12,8 +12,6 @@ import responses.CreateGameResponse;
 
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class CreateGameServiceTest {
     CreateGameService service = new CreateGameService();
 

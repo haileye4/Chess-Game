@@ -9,12 +9,9 @@ import models.Game;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import responses.ListGamesResponse;
-import responses.LoginResponse;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ListGamesServiceTest {
 

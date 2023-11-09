@@ -2,7 +2,6 @@ package database;
 
 import dataAccess.DataAccessException;
 import dataAccess.UserDAO;
-import models.AuthToken;
 import models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

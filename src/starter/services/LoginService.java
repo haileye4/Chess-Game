@@ -9,7 +9,6 @@ import request.LoginRequest;
 import responses.LoginResponse;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 

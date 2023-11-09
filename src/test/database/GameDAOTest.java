@@ -4,9 +4,7 @@ import chess.Board;
 import chess.ChessGame;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
-import models.AuthToken;
 import models.Game;
-import models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

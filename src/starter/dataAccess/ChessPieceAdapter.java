@@ -1,6 +1,5 @@
 package dataAccess;
 
-import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.Piece;
 import com.google.gson.*;

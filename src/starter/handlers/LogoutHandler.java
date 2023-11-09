@@ -2,13 +2,8 @@ package handlers;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import models.AuthToken;
-import request.LoginRequest;
-import request.RegisterRequest;
 import responses.LogoutResponse;
-import responses.RegisterResponse;
 import services.LogoutService;
-import services.RegisterService;
 import spark.Request;
 import spark.Response;
 

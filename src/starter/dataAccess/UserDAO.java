@@ -1,7 +1,5 @@
 package dataAccess;
 
-import chess.ChessGame;
-import models.AuthToken;
 import models.User;
 
 import java.sql.Connection;

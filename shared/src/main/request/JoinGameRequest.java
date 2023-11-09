@@ -1,7 +1,6 @@
 package request;
 
 import chess.ChessGame;
-import chess.ChessPiece;
 
 /**
  * join game service request

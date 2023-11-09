@@ -4,7 +4,6 @@ import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
-import models.User;
 import responses.ClearApplicationResponse;
 
 import java.sql.SQLException;

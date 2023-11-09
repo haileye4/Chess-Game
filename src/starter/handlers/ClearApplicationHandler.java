@@ -2,12 +2,7 @@ package handlers;
 
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
-import request.LoginRequest;
 import responses.ClearApplicationResponse;
-import responses.ListGamesResponse;
-import responses.LoginResponse;
-import services.ListGamesService;
-import services.LoginService;
 import spark.Request;
 import spark.Response;
 import services.ClearApplicationService;

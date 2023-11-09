@@ -3,15 +3,12 @@ package services;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
-import models.AuthToken;
 import models.Game;
 import request.CreateGameRequest;
 import responses.CreateGameResponse;
 
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * create game service

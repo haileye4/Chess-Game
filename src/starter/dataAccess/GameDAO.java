@@ -6,7 +6,6 @@ import chess.ChessPiece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import models.Game;
-import models.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

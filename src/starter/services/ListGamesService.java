@@ -3,14 +3,11 @@ package services;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
-import models.AuthToken;
 import models.Game;
 import responses.ListGamesResponse;
-import responses.LogoutResponse;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * list games service

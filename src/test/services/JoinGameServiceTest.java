@@ -11,12 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import request.JoinGameRequest;
 import responses.JoinGameResponse;
-import responses.ListGamesResponse;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class JoinGameServiceTest {
     ArrayList<AuthToken> testTokens = new ArrayList<AuthToken>();
