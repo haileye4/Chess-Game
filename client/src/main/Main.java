@@ -1,10 +1,19 @@
 import com.google.gson.Gson;
 import java.sql.Connection;
 import java.util.*;
+
+import static ChessUI.EscapeSequences.*;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.print("Welcome to the wonderful game of Chess!\n" +
+        System.out.print(SET_TEXT_BOLD);
+        System.out.print(SET_TEXT_BOLD);
+
+        System.out.print("\nWelcome to the wonderful game of Chess!\n" +
                 "A CS240 project created by Hailey Johnson\n\n");
+
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+        System.out.print(RESET_TEXT_ITALIC);
 
         //output a menu
         displayMenu();
