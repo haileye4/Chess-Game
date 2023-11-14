@@ -12,6 +12,10 @@ public class DrawBoard{
     public String[][] myPieces = new String[8][8]; //represent players and help us know where to put
     //I made the board white on top and black on bottom... good to know
 
+    public static void main(String[] args) {
+        Board myBoard = new Board();
+        drawChessboard(System.out, myBoard);
+    }
     public static void drawChessboard(PrintStream out, Board board) {
         printColHeader(out);
 
@@ -154,11 +158,6 @@ public class DrawBoard{
     private static void resetColors(PrintStream out) {
         out.print(RESET_BG_COLOR); // Reset the background color
         out.print(RESET_TEXT_COLOR); // reset the text color
-    }
-
-    public static void main(String[] args) {
-        Board myBoard = new Board();
-        drawChessboard(System.out, myBoard);
     }
 
 }

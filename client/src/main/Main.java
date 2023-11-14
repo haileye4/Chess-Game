@@ -15,14 +15,13 @@ public class Main {
         System.out.print(RESET_TEXT_BOLD_FAINT);
         System.out.print(RESET_TEXT_ITALIC);
 
-        //output a menu
-        displayMenu();
-
         // Get the clients option
         Scanner scanner = new Scanner(System.in);
 
         int option;
         do {
+            //output the menu
+            displayMenu();
             System.out.print("Enter an option (1-4): ");
 
             while (!scanner.hasNextInt()) {
@@ -38,7 +37,8 @@ public class Main {
             switch (option) {
                 case 1:
                     System.out.println("You selected Register.");
-                    // Add your Register logic here
+                    System.out.println("\n");
+                    register(scanner);
                     break;
                 case 2:
                     System.out.println("You selected Login.");
@@ -66,5 +66,30 @@ public class Main {
         System.out.println("2. Login");
         System.out.println("3. Help");
         System.out.println("4. Quit");
+    }
+
+    public static void register(Scanner scanner) {
+        scanner.nextLine();
+        // Get username
+        System.out.println("Registering a new user...");
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+
+        // Get password
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        // Get email
+        System.out.print("Enter your email: ");
+        String email = scanner.nextLine();
+
+        // Display the entered information
+        System.out.println("Username: " + username);
+        System.out.println("Password: " + password);
+        System.out.println("Email: " + email);
+        System.out.println("\n");
+        System.out.print(SET_TEXT_ITALIC);
+        System.out.println("Registered!");
+        System.out.print(RESET_TEXT_ITALIC);
     }
 }
