@@ -155,5 +155,4 @@ public class AuthDAO {
             database.closeConnection(connection);
         }
     }
-
 }

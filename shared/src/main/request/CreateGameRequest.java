@@ -1,5 +1,7 @@
 package request;
 
+import java.nio.charset.Charset;
+
 /**
  * createGame service request
  */
