@@ -21,6 +21,7 @@ public class ServerFacade {
 
     //make register one first
     public RegisterResponse Register(RegisterRequest req) throws IOException, URISyntaxException {
+        //HANDLE EXCEPTION IF USERNAME IS ALREADY TAKEN
         URL url = new URL("http://localhost:8080/user");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -48,12 +49,16 @@ public class ServerFacade {
         }
         else {
             // SERVER RETURNED AN HTTP ERROR
+            System.out.println("Error: Username already taken! Cannot duplicate users...");
+            System.out.println("\n");
             throw new RuntimeException("HTTP error");
         }
+        connection.disconnect();
         return response;
     }
 
     public LoginResponse Login(LoginRequest req) throws IOException, URISyntaxException {
+        //make sure to handle
         URL url = new URL("http://localhost:8080/session");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -87,8 +92,11 @@ public class ServerFacade {
         }
         else {
             // SERVER RETURNED AN HTTP ERROR
-            throw new RuntimeException("Error: Likely user not registered");
+            System.out.println("Error: User not registered!");
+            System.out.println("\n");
+            throw new RuntimeException("HTTP Error");
         }
+        connection.disconnect();
         return response;
     }
 
@@ -124,6 +132,7 @@ public class ServerFacade {
             // SERVER RETURNED AN HTTP ERROR
             throw new RuntimeException("HTTP error");
         }
+        connection.disconnect();
         return response;
     }
 

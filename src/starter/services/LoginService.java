@@ -40,6 +40,7 @@ public class LoginService extends Service {
 
         if (!userFound) {
             response.setMessage("Error: user not found");
+            System.out.println("Error: User not registered!");
             return response;
         }
 

@@ -48,6 +48,7 @@ public class RegisterService extends Service {
 
         if (alreadyIn) {
             response.setMessage("Error: already taken");
+            System.out.println("Error: Username already taken! Cannot duplicate users...");
             return response;
         }
 
