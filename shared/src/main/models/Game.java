@@ -1,5 +1,7 @@
 package models;
 
+import chess.Board;
+import chess.ChessBoard;
 import chess.ChessGame;
 
 import java.util.ArrayList;
@@ -149,8 +151,11 @@ public class Game {
 
     /**
      * set the chess game
-     * @param game
+     *
      */
+    public ChessBoard getGameBoard() {
+        return game.getBoard();
+    }
     public void setGame(ChessGame game) {
         this.game = game;
     }

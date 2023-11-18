@@ -1,15 +1,14 @@
-import com.google.gson.Gson;
-import dataAccess.DataAccessException;
-import dataAccess.*;
+import ChessUI.DrawBoard;
+import chess.ChessGame;
+import models.Game;
+import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
-import responses.LoginResponse;
-import responses.LogoutResponse;
-import responses.RegisterResponse;
+import responses.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -19,6 +18,7 @@ public class Main {
     //make a local class variable scanner
     static Scanner scanner = new Scanner(System.in);
     static ServerFacade server = new ServerFacade();
+    private static ArrayList<Game> allGames; //so we know which game to join
 
     public static void main(String[] args) throws IOException, URISyntaxException, SQLException {
         System.out.print(SET_TEXT_BOLD);
@@ -150,6 +150,11 @@ public class Main {
     public static void postLoginUI(String authToken) throws SQLException, IOException, URISyntaxException {
         System.out.println("\n");
         //scanner.nextLine();
+        System.out.print(SET_TEXT_BOLD);
+        System.out.print(SET_TEXT_COLOR_RED);
+        System.out.println("Please list games before joining to play or as an observer.");
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+        System.out.print(RESET_TEXT_COLOR);
 
         int option;
         do {
@@ -170,15 +175,21 @@ public class Main {
             switch (option) {
                 case 1:
                     System.out.println("You selected List Games.");
+                    System.out.println("\n");
+                    listGames(authToken);
                     break;
                 case 2:
                     System.out.println("You selected Create Game.");
+                    System.out.println("\n");
+                    createGame(authToken);
                     break;
                 case 3:
                     System.out.println("You selected Join Game.");
+                    joinGame(authToken);
                     break;
                 case 4:
                     System.out.println("You selected Join Observer.");
+                    joinGameObserver(authToken);
                     // Add your Quit logic here or simply break out of the loop
                     break;
                 case 5:
@@ -209,5 +220,93 @@ public class Main {
 
     public static void logout(String authToken) throws SQLException, IOException, URISyntaxException {
         LogoutResponse response = server.Logout(authToken);
+    }
+
+    public static void listGames(String authToken) throws SQLException, IOException, URISyntaxException {
+        ListGamesResponse response = server.ListGames(authToken);
+        System.out.print(SET_TEXT_BOLD);
+        System.out.println(response.gamesToString());
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+        allGames = response.getGames();
+    }
+
+    public static void createGame(String authToken) throws IOException, URISyntaxException {
+        System.out.println("\n");
+        System.out.println("Creating a new game...");
+        System.out.print("Enter your new game name: ");
+        String gameName = scanner.nextLine();
+
+        CreateGameRequest request = new CreateGameRequest(gameName);
+        CreateGameResponse response = server.CreateGame(request, authToken);
+
+        // Display the entered information
+        System.out.println("Game Name: " + gameName);
+        System.out.println("\n");
+        System.out.print(SET_TEXT_ITALIC);
+        System.out.println("New Game Created!");
+        System.out.print(RESET_TEXT_ITALIC);
+    }
+
+    public static void joinGame(String authToken) throws IOException, URISyntaxException {
+        boolean validInput = false;
+        int selectedGame;
+        ChessGame.TeamColor playerColor = null;
+
+        do {System.out.println("\n");
+            System.out.println("Joining a game...");
+            System.out.print("Select a game number from the list of games: ");
+            selectedGame = scanner.nextInt();
+            scanner.nextLine();
+
+            System.out.println("Select the team color you wish to play: ");
+            System.out.println("Options: black or white\n");
+            String teamColor = scanner.nextLine();
+
+            if (Objects.equals(teamColor, "black")) {
+                validInput = true;
+                playerColor = ChessGame.TeamColor.BLACK;
+            } else if (Objects.equals(teamColor, "white")) {
+                validInput = true;
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else {
+                System.out.println("ERROR: Invalid team option. Enter a valid team color: ");
+            }
+        } while (!validInput);
+
+        JoinGameRequest request = new JoinGameRequest(playerColor, allGames.get(selectedGame - 1).getGameID());
+        JoinGameResponse response = server.JoinGame(request, authToken);
+
+        // Display the entered information
+        System.out.print(SET_TEXT_ITALIC);
+        System.out.print(SET_TEXT_BOLD);
+        System.out.println("Game number " + selectedGame + " Joined as " + playerColor + " player!");
+        System.out.print(RESET_TEXT_ITALIC);
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+        DrawBoard.printBoards();
+    }
+
+    public static void joinGameObserver(String authToken) throws IOException, URISyntaxException, SQLException {
+        boolean validInput = false;
+        int selectedGame;
+
+        System.out.println("\n");
+        System.out.println("Observing a game...");
+        System.out.print("Select a game number from the list of games: ");
+        selectedGame = scanner.nextInt();
+        scanner.nextLine();
+
+        //join a game as "null" to be a watcher
+        JoinGameRequest request = new JoinGameRequest(null, allGames.get(selectedGame - 1).getGameID());
+        JoinGameResponse response = server.JoinGame(request, authToken);
+
+        // Display the entered information
+        System.out.print(SET_TEXT_ITALIC);
+        System.out.print(SET_TEXT_BOLD);
+        System.out.println("Game number " + selectedGame + " Joined as an observer!");
+        System.out.print(RESET_TEXT_ITALIC);
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+
+        //DrawBoard.drawChessboard(System.out, allGames.get(selectedGame - 1).getGameBoard());
+        DrawBoard.printBoards();
     }
 }

@@ -12,20 +12,27 @@ public class DrawBoard{
     public String[][] myPieces = new String[8][8]; //represent players and help us know where to put
     //I made the board white on top and black on bottom... good to know
 
-    public static void main(String[] args) {
+    public static void printBoards() {
         Board myBoard = new Board();
         drawChessboard(System.out, myBoard);
+        System.out.println("\n");
+        drawChessboardWhite(System.out, myBoard);
     }
-    public static void drawChessboard(PrintStream out, Board board) {
+
+    public DrawBoard() {
+
+    }
+    public static void drawChessboard(PrintStream out, ChessBoard board) {
         printColHeader(out);
 
         printRowHeader(out, 1);
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
-                drawSquare(out, row, col, board);
+                drawSquare(out, row, col, (Board) board);
 
                 if (col == BOARD_SIZE - 1) {
                     resetColors(out);
+                    out.print(SET_BG_COLOR_WHITE);
                 }
             }
             printRowHeader(out, row + 1);
@@ -37,6 +44,32 @@ public class DrawBoard{
         }
 
         printColHeader(out);
+        out.print(SET_BG_COLOR_WHITE);
+    }
+
+    public static void drawChessboardWhite(PrintStream out, ChessBoard board) {
+        printColHeaderWhite(out);
+
+        printRowHeader(out, 8);
+
+        for (int row = 7; row >= 0; row--) {
+            for (int col = 7; col >= 0; col--) {
+                drawSquare(out, row, col, (Board) board);
+
+                if (col == 0) {
+                    resetColors(out);
+                }
+            }
+            printRowHeader(out, row + 1);
+            out.println(); // Move to the next row
+
+            if (row != 0) {
+                printRowHeader(out, row); //start next row...
+            }
+        }
+
+        printColHeaderWhite(out);
+        out.print(SET_BG_COLOR_WHITE);
     }
 
     private static void printColHeader(PrintStream out) {
@@ -60,6 +93,36 @@ public class DrawBoard{
                 out.print(" g ");
             } else if (square == 8) {
                 out.print(" h ");
+            } else {
+                out.print("   ");
+            }
+        }
+
+        resetColors(out);
+        out.println(); //print out that header
+    }
+
+    private static void printColHeaderWhite(PrintStream out) {
+        int squares = BOARD_SIZE + 2;
+        setGray(out);
+
+        for (int square = 0; square < squares; square++) {
+            if (square == 1) {
+                out.print(" h ");
+            } else if (square == 2) {
+                out.print(" g ");
+            } else if (square == 3) {
+                out.print(" f ");
+            } else if (square == 4) {
+                out.print(" e ");
+            } else if (square == 5) {
+                out.print(" d ");
+            } else if (square == 6) {
+                out.print(" c ");
+            } else if (square == 7) {
+                out.print(" b ");
+            } else if (square == 8) {
+                out.print(" a ");
             } else {
                 out.print("   ");
             }

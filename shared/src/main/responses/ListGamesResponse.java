@@ -25,4 +25,18 @@ public class ListGamesResponse extends Response {
     public void setGames(ArrayList<Game> games) {
         this.games = games;
     }
+
+    public String gamesToString() {
+        String gamesString = "";
+
+        int i = 1;
+        for (Game game : this.games) {
+            gamesString = gamesString + i + ". "
+                    + game.getGameName() + "\n";
+
+            i++;
+        }
+
+        return gamesString;
+    }
 }

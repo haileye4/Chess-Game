@@ -1,6 +1,9 @@
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
 import com.google.gson.Gson;
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
+import com.google.gson.GsonBuilder;
+import dataAccess.*;
 import request.CreateGameRequest;
 import request.RegisterRequest;
 import request.LoginRequest;
@@ -136,7 +139,51 @@ public class ServerFacade {
         return response;
     }
 
-    public CreateGameResponse CreateGame(CreateGameRequest req) throws IOException, URISyntaxException {
+    public ListGamesResponse ListGames(String authToken) throws IOException, URISyntaxException, SQLException {
+        URL url = new URL("http://localhost:8080/game");
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        connection.setReadTimeout(5000);
+        connection.setRequestMethod("GET");
+        connection.setDoOutput(true);
+
+        connection.addRequestProperty("authorization", authToken);
+
+        connection.connect();
+
+        ListGamesResponse response = null;
+
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            // Get HTTP response headers, if necessary
+            // Map<String, List<String>> headers = connection.getHeaderFields();
+
+            // OR
+
+            //connection.getHeaderField("Content-Length");
+
+            InputStream responseBody = connection.getInputStream();
+            // Read response body from InputStream ...
+            InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
+
+            var builder = new GsonBuilder();
+
+            Gson gson = builder.registerTypeAdapter(ChessGame.class, new typeAdapters.ChessGameAdapter())
+                    .registerTypeAdapter(ChessBoard.class, new typeAdapters.ChessBoardAdapter())
+                    .registerTypeAdapter(ChessPiece.class, new typeAdapters.ChessPieceAdapter())
+                    .create();
+
+            response = gson.fromJson(inputStreamReader, ListGamesResponse.class);
+        }
+        else {
+            // SERVER RETURNED AN HTTP ERROR
+            throw new RuntimeException("HTTP error");
+        }
+        connection.disconnect();
+        return response;
+    }
+
+    public CreateGameResponse CreateGame(CreateGameRequest req, String authToken) throws IOException, URISyntaxException {
         URL url = new URL("http://localhost:8080/game");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -145,9 +192,7 @@ public class ServerFacade {
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
 
-        // Set HTTP request headers, if necessary
-        //will have to set authToken
-        // connection.addRequestProperty(""authorization"", PASS AUTHTOKEN );
+        connection.addRequestProperty("authorization", authToken);
 
         connection.connect();
 
@@ -171,6 +216,47 @@ public class ServerFacade {
             // Read response body from InputStream ...
             InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
             response = new Gson().fromJson(inputStreamReader, CreateGameResponse.class);
+        }
+        else {
+            // SERVER RETURNED AN HTTP ERROR
+            throw new RuntimeException("HTTP error");
+        }
+        return response;
+    }
+
+    public JoinGameResponse JoinGame(JoinGameRequest req, String authToken) throws IOException, URISyntaxException {
+        URL url = new URL("http://localhost:8080/game");
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        connection.setReadTimeout(5000);
+        connection.setRequestMethod("PUT");
+        connection.setDoOutput(true);
+
+        connection.addRequestProperty("authorization", authToken);
+
+        connection.connect();
+
+        try(OutputStream requestBody = connection.getOutputStream();) {
+            // Write request body to OutputStream ...
+            var jsonBody = new Gson().toJson(req);
+            requestBody.write(jsonBody.getBytes());
+        }
+
+        JoinGameResponse response = null;
+
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            // Get HTTP response headers, if necessary
+            // Map<String, List<String>> headers = connection.getHeaderFields();
+
+            // OR
+
+            //connection.getHeaderField("Content-Length");
+
+            InputStream responseBody = connection.getInputStream();
+            // Read response body from InputStream ...
+            InputStreamReader inputStreamReader = new InputStreamReader(responseBody);
+            response = new Gson().fromJson(inputStreamReader, JoinGameResponse.class);
         }
         else {
             // SERVER RETURNED AN HTTP ERROR
