@@ -25,8 +25,8 @@ class RegisterServiceTest {
         User user1 = new User("noah","1234", "coolGuy@gmail.com");
         User user2 = new User("hailey", "love00", "happy.email.com");
 
-        users.add(user1);
         users.add(user2);
+        users.add(user1);
 
         RegisterRequest request1 = new RegisterRequest("noah","1234", "coolGuy@gmail.com");
         RegisterRequest request2 = new RegisterRequest("hailey", "love00", "happy.email.com");
@@ -69,12 +69,12 @@ class RegisterServiceTest {
         clearEverything();
         //register someone who is already in the database
         User noah = new User("noah","1234", "coolGuy@gmail.com");
-        User hailey = new User("hailey", "love00", "happy.email.com");
-        users.add(noah);
+        User hailey = new User("hailey", "love00", "happy@email.com");
         users.add(hailey);
+        users.add(noah);
 
         RegisterRequest request1 = new RegisterRequest("noah","1234", "coolGuy@gmail.com");
-        RegisterRequest request2 = new RegisterRequest("hailey", "love00", "happy.email.com");
+        RegisterRequest request2 = new RegisterRequest("hailey", "love00", "happy@email.com");
 
         RegisterResponse response1 = service.register(request1);
         RegisterResponse response2 = service.register(request2);

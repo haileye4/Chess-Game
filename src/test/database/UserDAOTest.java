@@ -27,6 +27,7 @@ public class UserDAOTest {
 
     @Test
     public void insertUser() throws SQLException, DataAccessException {
+        users.clear();
         //create a new user and insert into database
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
         users.create(newUser);
@@ -55,6 +56,7 @@ public class UserDAOTest {
 
     @Test
     public void find() throws SQLException, DataAccessException {
+        users.clear();
         //try to find a user
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
         users.create(newUser);
@@ -70,6 +72,7 @@ public class UserDAOTest {
     }
     @Test
     public void badFind() throws SQLException, DataAccessException {
+        users.clear();
         //try to find a user that is not there
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
         User newUser2 = new User("PapaElf", "milkAndCookies", "headElf@gmail.com");
@@ -115,6 +118,7 @@ public class UserDAOTest {
     }
     @Test
     public void deleteUser() throws SQLException, DataAccessException {
+        users.clear();
         //create a new user and insert into database
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
         users.create(newUser);
@@ -132,6 +136,7 @@ public class UserDAOTest {
 
     @Test
     public void badDelete() throws SQLException, DataAccessException {
+        users.clear();
         //delete a user which does not exist
         User newUser = new User("SantaClaus", "cookiesAndMilk", "santa@gmail.com");
         users.create(newUser);

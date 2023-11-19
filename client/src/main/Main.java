@@ -385,6 +385,7 @@ public class Main {
             System.out.print(RESET_TEXT_ITALIC);
             System.out.print(RESET_TEXT_BOLD_FAINT);
             DrawBoard.printBoards();
+            System.out.println("\n");
         } catch (RuntimeException ex) {
             System.out.print(SET_TEXT_BOLD);
             System.out.print(SET_TEXT_COLOR_RED);
@@ -417,6 +418,7 @@ public class Main {
 
         //DrawBoard.drawChessboard(System.out, allGames.get(selectedGame - 1).getGameBoard());
         DrawBoard.printBoards();
+        System.out.println("\n");
     }
 
     public static void postLoginHelp(){

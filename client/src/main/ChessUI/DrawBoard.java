@@ -14,6 +14,7 @@ public class DrawBoard{
 
     public static void printBoards() {
         Board myBoard = new Board();
+        myBoard.resetBoard();
         drawChessboard(System.out, myBoard);
         System.out.println("\n");
         drawChessboardWhite(System.out, myBoard);

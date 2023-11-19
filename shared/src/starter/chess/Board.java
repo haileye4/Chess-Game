@@ -7,7 +7,6 @@ public class Board implements ChessBoard{
      * no args constructor
      */
     public Board() {
-        resetBoard();
     }
     @Override
     public void addPiece(ChessPosition position, ChessPiece piece) {

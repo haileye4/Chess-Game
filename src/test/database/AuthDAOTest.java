@@ -26,6 +26,7 @@ public class AuthDAOTest {
 
     @Test
     public void insert() throws SQLException, DataAccessException {
+        tokens.clear();
         //create an authToken to test insert
         AuthToken fancy = new AuthToken("fancyToken", "Mr.Fancy1234");
         tokens.create(fancy);
@@ -54,6 +55,7 @@ public class AuthDAOTest {
 
     @Test
     public void find() throws SQLException, DataAccessException {
+        tokens.clear();
         //try to find an authToken
         AuthToken token1 = new AuthToken("cookiesAndMilk", "SantaClaus");
         tokens.create(token1);
@@ -69,6 +71,7 @@ public class AuthDAOTest {
     }
     @Test
     public void badFind() throws SQLException, DataAccessException {
+        tokens.clear();
         //try to find a token that is not there
         AuthToken token1 = new AuthToken("cookiesAndMilk", "SantaClaus");
         tokens.create(token1);
@@ -110,6 +113,7 @@ public class AuthDAOTest {
 
     @Test
     public void delete() throws SQLException, DataAccessException {
+        tokens.clear();
         AuthToken token = new AuthToken("fancyToken", "Mr.Fancy1234");
         tokens.create(token);
 
@@ -122,6 +126,7 @@ public class AuthDAOTest {
 
     @Test
     public void badDelete() throws SQLException, DataAccessException {
+        tokens.clear();
         //try to delete a token that's not there
         AuthToken token = new AuthToken("fancyToken", "Mr.Fancy1234");
         tokens.create(token);

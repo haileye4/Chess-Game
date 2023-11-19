@@ -3,6 +3,7 @@ package dataAccess;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.Piece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import models.Game;

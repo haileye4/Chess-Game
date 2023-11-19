@@ -17,6 +17,7 @@ public class GameDAOTest {
 
     @Test
     public void clear() throws SQLException, DataAccessException {
+        games.clear();
         chess.Game myGame = new chess.Game();
         myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
         myGame.setBoard(new Board());
@@ -70,6 +71,7 @@ public class GameDAOTest {
     @Test
     public void find() throws SQLException, DataAccessException {
         //create a new game and insert into database
+        games.clear();
         chess.Game myGame = new chess.Game();
         myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
         myGame.setBoard(new Board());
@@ -158,6 +160,7 @@ public class GameDAOTest {
 
     @Test
     public void badDelete() throws SQLException, DataAccessException {
+        games.clear();
         //delete a user which does not exist
         chess.Game myGame = new chess.Game();
         myGame.setTeamTurn(ChessGame.TeamColor.WHITE);
