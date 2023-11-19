@@ -58,19 +58,36 @@ public class Main {
             //switch statement looks at what user enters
             switch (option) {
                 case 1:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Register.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
                     register();
                     break;
                 case 2:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Login.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
                     login();
                     break;
                 case 3:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Help.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
                     help();
                     break;
                 case 4:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Quit. Exiting...");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.println("\n");
                     // Add your Quit logic here or simply break out of the loop
                     break;
                 default:
@@ -104,18 +121,29 @@ public class Main {
         String email = scanner.nextLine();
 
         RegisterRequest request = new RegisterRequest(username, password, email);
-        RegisterResponse response = server.Register(request);
 
-        // Display the entered information
-        System.out.println("Username: " + username);
-        System.out.println("Password: " + password);
-        System.out.println("Email: " + email);
-        System.out.println("\n");
-        System.out.print(SET_TEXT_ITALIC);
-        System.out.println("Registered! Welcome.");
-        System.out.print(RESET_TEXT_ITALIC);
-
-        postLoginUI(response.getAuthToken());
+        try {
+            RegisterResponse response = server.Register(request);
+            // Display the entered information
+            System.out.print(SET_TEXT_ITALIC);
+            System.out.print(SET_TEXT_BOLD);
+            // Display the entered information
+            System.out.println("Username: " + username);
+            System.out.println("Password: " + password);
+            System.out.println("Email: " + email);
+            System.out.println("\n");
+            System.out.println("Registered! Welcome.");
+            System.out.print(RESET_TEXT_ITALIC);
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            DrawBoard.printBoards();
+            postLoginUI(response.getAuthToken());
+        } catch (RuntimeException ex) {
+            System.out.print(SET_TEXT_BOLD);
+            System.out.print(SET_TEXT_COLOR_RED);
+            System.out.println("Error: username already taken.");
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            System.out.print(RESET_TEXT_COLOR);
+        }
     }
 
     public static void login() throws IOException, URISyntaxException, SQLException {
@@ -131,20 +159,47 @@ public class Main {
         String password = scanner.nextLine();
 
         LoginRequest request = new LoginRequest(username, password);
-        LoginResponse response = server.Login(request);
 
-        // Display info
-        System.out.println("\n");
-        System.out.print(SET_TEXT_ITALIC);
-        System.out.println("Welcome " + username + "!");
-        System.out.print(RESET_TEXT_ITALIC);
+        try {
+            LoginResponse response = server.Login(request);
 
-        postLoginUI(response.getAuthToken());
+            // Display info
+            System.out.println("\n");
+            System.out.print(SET_TEXT_ITALIC);
+            System.out.println("Welcome " + username + "!");
+            System.out.print(RESET_TEXT_ITALIC);
+
+            postLoginUI(response.getAuthToken());
+
+        } catch (RuntimeException ex) {
+            System.out.print(SET_TEXT_BOLD);
+            System.out.print(SET_TEXT_COLOR_RED);
+            System.out.println("Error: Incorrect password or username.");
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            System.out.print(RESET_TEXT_COLOR);
+        }
     }
 
     public static void help() {
         System.out.println("\n");
-        displayMenu();
+        System.out.print(SET_TEXT_BOLD);
+        System.out.print(SET_TEXT_COLOR_BLUE);
+        System.out.println("Welcome to the game of chess!");
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+
+        System.out.println("Select one of 4 options from the pre-login menu to begin.");
+        System.out.println("First, register a new user with an original username, password, and email.");
+
+        System.out.print(SET_TEXT_ITALIC);
+        System.out.println("An existing username may not be taken.");
+        System.out.print(RESET_TEXT_ITALIC);
+
+        System.out.println("If already registered, login with an existing username and password.");
+        System.out.println("Once logged in, you may play and enjoy!");
+        System.out.println("When you are done, select quit to end your session.");
+
+        System.out.print(RESET_TEXT_COLOR);
+        System.out.println("\n");
     }
 
     public static void postLoginUI(String authToken) throws SQLException, IOException, URISyntaxException {
@@ -152,7 +207,7 @@ public class Main {
         //scanner.nextLine();
         System.out.print(SET_TEXT_BOLD);
         System.out.print(SET_TEXT_COLOR_RED);
-        System.out.println("Please list games before joining to play or as an observer.");
+        System.out.println("Please list games before joining to play or observe.");
         System.out.print(RESET_TEXT_BOLD_FAINT);
         System.out.print(RESET_TEXT_COLOR);
 
@@ -174,30 +229,58 @@ public class Main {
             // Process user choice
             switch (option) {
                 case 1:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected List Games.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
                     listGames(authToken);
                     break;
                 case 2:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Create Game.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
                     createGame(authToken);
                     break;
                 case 3:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Join Game.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.println("\n");
                     joinGame(authToken);
                     break;
                 case 4:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Join Observer.");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.println("\n");
                     joinGameObserver(authToken);
                     // Add your Quit logic here or simply break out of the loop
                     break;
                 case 5:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Help....");
-                    displayPostLoginMenu();
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.println("\n");
+                    postLoginHelp();
                     break;
                 case 6:
+                    System.out.print(SET_TEXT_BOLD);
+                    System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Logout. Logging out...");
+                    System.out.print(RESET_TEXT_BOLD_FAINT);
+                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.println("\n");
                     logout(authToken);
                     // Add your Quit logic here or simply break out of the loop
                     break;
@@ -208,7 +291,6 @@ public class Main {
     }
 
     public static void displayPostLoginMenu() {
-        System.out.println("\n");
         System.out.println("Menu:");
         System.out.println("1. List Games");
         System.out.println("2. Create Game");
@@ -220,19 +302,37 @@ public class Main {
 
     public static void logout(String authToken) throws SQLException, IOException, URISyntaxException {
         LogoutResponse response = server.Logout(authToken);
+        System.out.println("\n");
     }
 
     public static void listGames(String authToken) throws SQLException, IOException, URISyntaxException {
         ListGamesResponse response = server.ListGames(authToken);
         System.out.print(SET_TEXT_BOLD);
-        System.out.println(response.gamesToString());
+        if (response.gamesToString() == "") {
+            //There are no games
+            System.out.print(SET_TEXT_BOLD);
+            System.out.print(SET_TEXT_COLOR_GREEN);
+            System.out.println("There are no games on the server. Create a new game!");
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            System.out.print(RESET_TEXT_COLOR);
+            System.out.println("\n");
+        } else {
+            System.out.println(response.gamesToString());
+        }
         System.out.print(RESET_TEXT_BOLD_FAINT);
         allGames = response.getGames();
+        System.out.println("\n");
     }
 
     public static void createGame(String authToken) throws IOException, URISyntaxException {
         System.out.println("\n");
+        System.out.print(SET_TEXT_BOLD);
+        System.out.print(SET_TEXT_COLOR_MAGENTA);
         System.out.println("Creating a new game...");
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+        System.out.print(RESET_TEXT_COLOR);
+
+        System.out.println("\n");
         System.out.print("Enter your new game name: ");
         String gameName = scanner.nextLine();
 
@@ -274,15 +374,24 @@ public class Main {
         } while (!validInput);
 
         JoinGameRequest request = new JoinGameRequest(playerColor, allGames.get(selectedGame - 1).getGameID());
-        JoinGameResponse response = server.JoinGame(request, authToken);
+        //JoinGameResponse response = server.JoinGame(request, authToken);
 
-        // Display the entered information
-        System.out.print(SET_TEXT_ITALIC);
-        System.out.print(SET_TEXT_BOLD);
-        System.out.println("Game number " + selectedGame + " Joined as " + playerColor + " player!");
-        System.out.print(RESET_TEXT_ITALIC);
-        System.out.print(RESET_TEXT_BOLD_FAINT);
-        DrawBoard.printBoards();
+        try {
+            JoinGameResponse response = server.JoinGame(request, authToken);
+            // Display the entered information
+            System.out.print(SET_TEXT_ITALIC);
+            System.out.print(SET_TEXT_BOLD);
+            System.out.println("Game number " + selectedGame + " Joined as " + playerColor + " player!");
+            System.out.print(RESET_TEXT_ITALIC);
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            DrawBoard.printBoards();
+        } catch (RuntimeException ex) {
+            System.out.print(SET_TEXT_BOLD);
+            System.out.print(SET_TEXT_COLOR_RED);
+            System.out.println("Error: team color already taken.");
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            System.out.print(RESET_TEXT_COLOR);
+        }
     }
 
     public static void joinGameObserver(String authToken) throws IOException, URISyntaxException, SQLException {
@@ -308,5 +417,20 @@ public class Main {
 
         //DrawBoard.drawChessboard(System.out, allGames.get(selectedGame - 1).getGameBoard());
         DrawBoard.printBoards();
+    }
+
+    public static void postLoginHelp(){
+        System.out.println("\n");
+        System.out.print(SET_TEXT_BOLD);
+        System.out.print(SET_TEXT_COLOR_BLUE);
+        System.out.println("Welcome to the game of chess!");
+        System.out.print(RESET_TEXT_BOLD_FAINT);
+        System.out.println("Select one of 6 options from the menu to begin.");
+        System.out.println("First, list games to see if any are available.");
+        System.out.println("If no games are available, create a new one with an original game name.");
+        System.out.println("Else, join a game from the list as a player or an observer. Play and enjoy!");
+        System.out.println("When you are done, logout.");
+        System.out.print(RESET_TEXT_COLOR);
+        System.out.println("\n");
     }
 }
