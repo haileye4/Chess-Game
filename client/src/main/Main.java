@@ -135,7 +135,6 @@ public class Main {
             System.out.println("Registered! Welcome.");
             System.out.print(RESET_TEXT_ITALIC);
             System.out.print(RESET_TEXT_BOLD_FAINT);
-            DrawBoard.printBoards();
             postLoginUI(response.getAuthToken());
         } catch (RuntimeException ex) {
             System.out.print(SET_TEXT_BOLD);
