@@ -8,6 +8,7 @@ import request.CreateGameRequest;
 import responses.CreateGameResponse;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 
@@ -35,7 +36,21 @@ public class CreateGameTest {
     }
 
     @Test
-    void badCreateGame() {
+    void badCreateGame() throws SQLException, DataAccessException, IOException, URISyntaxException {
+        //with a bad authToken
+        games.clear();
+        tokens.clear();
 
+        tokens.create(new AuthToken("specialToken", "user")); //add user and auhtToken into data
+
+        CreateGameRequest request = new CreateGameRequest("gameName");
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            // Call the method that should throw a RuntimeException
+            server.CreateGame(request, "badToken");
+        }, "Expected RunTimeException for creating a game with an incorrect authToken.");
+
+        games.clear();
+        tokens.clear();
     }
 }
