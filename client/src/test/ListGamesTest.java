@@ -19,6 +19,9 @@ public class ListGamesTest {
 
     @Test
     void listGames() throws SQLException, DataAccessException, IOException, URISyntaxException {
+        games.clear();
+        tokens.clear();
+
         games.create(new Game(1234, "whiteUser", "blackUser",
                 "myCoolGame", new chess.Game()));
         games.create(new Game(5678, "whiteUser", "blackUser",
@@ -36,6 +39,9 @@ public class ListGamesTest {
 
     @Test
     void unauthorizedListGames() throws SQLException, DataAccessException, IOException, URISyntaxException {
+        games.clear();
+        tokens.clear();
+
         games.create(new Game(1234, "whiteUser", "blackUser",
                 "myCoolGame", new chess.Game()));
         games.create(new Game(5678, "whiteUser", "blackUser",
@@ -49,7 +55,6 @@ public class ListGamesTest {
             // Call the method that should throw a RuntimeException
             server.ListGames("wrongToken");
         }, "Expected RunTimeException for listing games with an unauthorized authToken.");
-
 
         games.clear();
         tokens.clear();
