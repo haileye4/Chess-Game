@@ -1,4 +1,6 @@
 import com.google.gson.Gson;
+import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import models.AuthToken;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -9,6 +11,7 @@ import webSocketMessages.userCommands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +24,14 @@ public class WebsocketRequestHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
+        //if session is not in list, MAKE A CONNECTION!
 
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         //turn back into userGameCommand
 
         var connection = getConnection(command.getAuthString(), session);
 
+        System.out.println("determining command type...");
         if (connection!= null) {
             switch (command.getCommandType()) {
                 case JOIN_PLAYER -> join(connection, command);
@@ -40,12 +45,17 @@ public class WebsocketRequestHandler {
         }
     }
 
-    private Connection getConnection(String authToken, Session session) {
+    private Connection getConnection(String authToken, Session session) throws SQLException, DataAccessException {
         Connection connection = connectionsByAuthToken.get(authToken);
 
         if(connection == null) {
             //validate auth token
             boolean valid = false;
+
+            AuthDAO tokens = new AuthDAO();
+            if (tokens.find(authToken) != null) {
+                valid = true;
+            }
 
             if(valid) {
                 connection = new Connection(authToken, session);
@@ -62,6 +72,7 @@ public class WebsocketRequestHandler {
     }
 
     private void join(Connection connection, UserGameCommand command) throws IOException {
+        System.out.println("entered join function in server...");
         int gameID = command.getGameID();
         String username = command.getUsername();
 
@@ -78,6 +89,7 @@ public class WebsocketRequestHandler {
 
         //serialize it into JSON form
         for (Connection user: connectionsByGameId.get(gameID)) {
+            System.out.println("sending messages to all users...");
             user.send(message);
         }
     }

@@ -44,6 +44,7 @@ public class WSClient extends Endpoint {
     }
 
     public void send(UserGameCommand msg) throws Exception {
+        System.out.println("about to send command to server...");
         this.session.getBasicRemote().sendText(new Gson().toJson(msg));
 
         if (msg.getCommandType() == UserGameCommand.CommandType.LEAVE) {

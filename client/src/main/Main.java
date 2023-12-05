@@ -22,7 +22,7 @@ public class Main {
     //make a local class variable scanner
     static Scanner scanner = new Scanner(System.in);
     static ServerFacade server = new ServerFacade();
-    private static ArrayList<Game> allGames; //so we know which game to join
+    private static ArrayList<Game> allGames = new ArrayList<>(); //so we know which game to join
 
     public static void main(String[] args) throws IOException, URISyntaxException, SQLException {
         System.out.print(SET_TEXT_BOLD);
@@ -210,6 +210,10 @@ public class Main {
     }
 
     public static void postLoginUI(String authToken) throws Exception {
+        if (!allGames.isEmpty()) {
+            allGames.clear();
+        }
+
         System.out.println("\n");
         //scanner.nextLine();
         System.out.print(SET_TEXT_BOLD);
@@ -314,6 +318,7 @@ public class Main {
     public static void listGames(String authToken) throws SQLException, IOException, URISyntaxException {
         ListGamesResponse response = server.ListGames(authToken);
         System.out.print(SET_TEXT_BOLD);
+
         if (response.gamesToString() == "") {
             //There are no games
             System.out.print(SET_TEXT_BOLD);
@@ -358,6 +363,17 @@ public class Main {
     }
 
     public static void joinGame(String authToken) throws Exception {
+
+        if (allGames.isEmpty()) {
+            System.out.print(SET_TEXT_BOLD);
+            System.out.print(SET_TEXT_COLOR_GREEN);
+            System.out.println("Please select \"List games\" before continuing (option 1).");
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            System.out.print(RESET_TEXT_COLOR);
+            System.out.println("\n");
+            return;
+        }
+
         boolean validInput = false;
         int selectedGame;
         ChessGame.TeamColor playerColor = null;
@@ -367,6 +383,13 @@ public class Main {
             System.out.print("Select a game number from the list of games: ");
             selectedGame = scanner.nextInt();
             scanner.nextLine();
+
+            if (selectedGame - 1 > allGames.size() || selectedGame <= 0) {
+                System.out.print(SET_TEXT_COLOR_RED);
+                System.out.println("ERROR: Game # does not exist. Select an existing game.");
+                System.out.print(RESET_TEXT_COLOR);
+                return;
+            }
 
             System.out.println("Select the team color you wish to play: ");
             System.out.println("Options: black or white\n");
@@ -463,6 +486,7 @@ public class Main {
         String username = tokens.findUsername(authToken);
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.JOIN_PLAYER,
                 authToken, gameID, username);
+        System.out.println("sending join_player command...");
         socket.send(command);
 
         //SWITCH STATEMENT of moves...

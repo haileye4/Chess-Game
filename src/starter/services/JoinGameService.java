@@ -67,13 +67,13 @@ public class JoinGameService extends Service {
             if (game.getGameID() == gameID) {
             //found the game...
                 if (request.getPlayerColor() == ChessGame.TeamColor.WHITE) {
-                    if (game.getWhiteUsername() != null || !Objects.equals(game.getWhiteUsername(), username)) {
+                    if (game.getWhiteUsername() != null && !Objects.equals(game.getWhiteUsername(), username)) {
                         response.setMessage("Error: already taken");
                         return response;
                     }
 
                 } else if (request.getPlayerColor() == ChessGame.TeamColor.BLACK) {
-                    if (game.getBlackUsername() != null || !Objects.equals(game.getBlackUsername(), username)) {
+                    if (game.getBlackUsername() != null && !Objects.equals(game.getBlackUsername(), username)) {
                         response.setMessage("Error: already taken");
                         return response;
                     }
