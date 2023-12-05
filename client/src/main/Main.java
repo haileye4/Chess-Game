@@ -1,12 +1,16 @@
 import ChessUI.DrawBoard;
 import chess.ChessGame;
+//import dataAccess.AuthDAO;
+import dataAccess.AuthDAO;
 import models.Game;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import responses.*;
+import webSocketMessages.userCommands.UserGameCommand;
 
+import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -136,7 +140,7 @@ public class Main {
             System.out.print(RESET_TEXT_ITALIC);
             System.out.print(RESET_TEXT_BOLD_FAINT);
             postLoginUI(response.getAuthToken());
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             System.out.print(SET_TEXT_BOLD);
             System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: username already taken.");
@@ -165,7 +169,9 @@ public class Main {
             // Display info
             System.out.println("\n");
             System.out.print(SET_TEXT_ITALIC);
+            System.out.print(SET_TEXT_COLOR_WHITE);
             System.out.println("Welcome " + username + "!");
+            System.out.print(RESET_TEXT_COLOR);
             System.out.print(RESET_TEXT_ITALIC);
 
             postLoginUI(response.getAuthToken());
@@ -176,6 +182,8 @@ public class Main {
             System.out.println("Error: Incorrect password or username.");
             System.out.print(RESET_TEXT_BOLD_FAINT);
             System.out.print(RESET_TEXT_COLOR);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -201,7 +209,7 @@ public class Main {
         System.out.println("\n");
     }
 
-    public static void postLoginUI(String authToken) throws SQLException, IOException, URISyntaxException {
+    public static void postLoginUI(String authToken) throws Exception {
         System.out.println("\n");
         //scanner.nextLine();
         System.out.print(SET_TEXT_BOLD);
@@ -262,7 +270,6 @@ public class Main {
                     System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
                     joinGameObserver(authToken);
-                    // Add your Quit logic here or simply break out of the loop
                     break;
                 case 5:
                     System.out.print(SET_TEXT_BOLD);
@@ -316,7 +323,11 @@ public class Main {
             System.out.print(RESET_TEXT_COLOR);
             System.out.println("\n");
         } else {
+            System.out.print(SET_TEXT_BOLD);
+            System.out.print(SET_TEXT_COLOR_GREEN);
             System.out.println(response.gamesToString());
+            System.out.print(RESET_TEXT_BOLD_FAINT);
+            System.out.print(RESET_TEXT_COLOR);
         }
         System.out.print(RESET_TEXT_BOLD_FAINT);
         allGames = response.getGames();
@@ -346,7 +357,7 @@ public class Main {
         System.out.print(RESET_TEXT_ITALIC);
     }
 
-    public static void joinGame(String authToken) throws IOException, URISyntaxException {
+    public static void joinGame(String authToken) throws Exception {
         boolean validInput = false;
         int selectedGame;
         ChessGame.TeamColor playerColor = null;
@@ -372,7 +383,8 @@ public class Main {
             }
         } while (!validInput);
 
-        JoinGameRequest request = new JoinGameRequest(playerColor, allGames.get(selectedGame - 1).getGameID());
+        int gameID = allGames.get(selectedGame - 1).getGameID();
+        JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
         //JoinGameResponse response = server.JoinGame(request, authToken);
 
         try {
@@ -383,18 +395,21 @@ public class Main {
             System.out.println("Game number " + selectedGame + " Joined as " + playerColor + " player!");
             System.out.print(RESET_TEXT_ITALIC);
             System.out.print(RESET_TEXT_BOLD_FAINT);
-            DrawBoard.printBoards();
-            System.out.println("\n");
+
+            inGame(authToken, gameID);
+
         } catch (RuntimeException ex) {
             System.out.print(SET_TEXT_BOLD);
             System.out.print(SET_TEXT_COLOR_RED);
             System.out.println("Error: team color already taken.");
             System.out.print(RESET_TEXT_BOLD_FAINT);
             System.out.print(RESET_TEXT_COLOR);
+        } catch (Exception e) {
+            throw new Exception(e);
         }
     }
 
-    public static void joinGameObserver(String authToken) throws IOException, URISyntaxException, SQLException {
+    public static void joinGameObserver(String authToken) throws Exception {
         boolean validInput = false;
         int selectedGame;
 
@@ -433,5 +448,77 @@ public class Main {
         System.out.println("When you are done, logout.");
         System.out.print(RESET_TEXT_COLOR);
         System.out.println("\n");
+    }
+
+    public static void inGame(String authToken, int gameID) throws Exception {
+        DrawBoard.printBoards();
+        System.out.println("\n");
+
+        //if joined game successfully
+        System.out.println("connecting to websocket...");
+        WSClient socket = new WSClient();
+
+        //send join game message on the webSocket
+        AuthDAO tokens = new AuthDAO();
+        String username = tokens.findUsername(authToken);
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.JOIN_PLAYER,
+                authToken, gameID, username);
+        socket.send(command);
+
+        //SWITCH STATEMENT of moves...
+        int option;
+        do {
+            //output the menu
+            gameChoices();
+            System.out.print("Enter an option (1-6): ");
+
+            while (!scanner.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number between 1 and 6.");
+                System.out.print("Enter an option (1-6): ");
+                scanner.next();
+            }
+
+            option = scanner.nextInt();
+            scanner.nextLine();
+
+            // Process user choice
+            switch (option) {
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    leaveGame(socket, authToken, gameID, username);
+                    // Add your Quit logic here or simply break out of the loop
+                    break;
+                default:
+                    System.out.println("Invalid input. Please enter a number between 1 and 4.");
+            }
+        } while (option != 6);
+
+    }
+
+    public static void gameChoices() {
+        System.out.println("Game Menu:");
+        System.out.println("1. Redraw Chess Board");
+        System.out.println("2. Make Move");
+        System.out.println("3. Highlight Legal Moves");
+        System.out.println("4. Resign");
+        System.out.println("5. Help");
+        System.out.println("6. Leave");
+    }
+
+    public static void leaveGame(WSClient socket, String authToken,
+                                 int gameID, String username) throws Exception {
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                authToken, gameID, username);
+
+        socket.send(command);
     }
 }

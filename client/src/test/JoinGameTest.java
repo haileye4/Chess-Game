@@ -19,7 +19,7 @@ public class JoinGameTest {
     AuthDAO tokens = new AuthDAO();
 
     @Test
-    void joinGame() throws SQLException, DataAccessException, IOException, URISyntaxException {
+    void joinGame() throws Exception {
         games.clear();
         tokens.clear();
 

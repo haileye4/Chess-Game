@@ -9,6 +9,8 @@ import java.util.*;
 
 public class Server {
 
+    private final WebsocketRequestHandler webSocket = new WebsocketRequestHandler();
+
     public static void main(String[] args) throws DataAccessException {
         new Server().run();
     }
@@ -17,13 +19,10 @@ public class Server {
         // Specify the port you want the server to listen on
         Spark.port(8080);
 
+        Spark.webSocket("/connect", webSocket);
+
         // Register a directory for hosting static files
         Spark.externalStaticFileLocation("/Users/haileyjohnson/Desktop/Chess Game/web");
-
-        /*Database database = new Database();
-        Connection connection = database.getConnection();
-        database.returnConnection(connection);*/
-        //pass CONNECTION THROUGH SERVER AND HANDLERS!!!
 
         Spark.post("/user", (req, res) ->
                 (new RegisterHandler()).handleRequest(req, res));

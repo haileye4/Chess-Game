@@ -102,6 +102,31 @@ public class AuthDAO {
         return null;
     }
 
+    public String findUsername(String authToken) throws DataAccessException, SQLException {
+        Database database = new Database();
+        Connection connection = database.getConnection();
+
+        String sql = "select authToken, username from authToken where authToken = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, authToken);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error finding AuthToken");
+        } finally {
+            // Close the connection
+            database.closeConnection(connection);
+        }
+
+        // If no matching token is found, return null or handle appropriately
+        return null;
+    }
+
     /**
      * delete an authentication token from our database
      * @param token

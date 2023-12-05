@@ -18,6 +18,8 @@ public class DrawBoard{
         drawChessboard(System.out, myBoard);
         System.out.println("\n");
         drawChessboardWhite(System.out, myBoard);
+        System.out.println(RESET_TEXT_COLOR);
+        System.out.println(RESET_BG_COLOR);
     }
 
     public DrawBoard() {

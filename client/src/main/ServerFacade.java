@@ -3,7 +3,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dataAccess.*;
+//import dataAccess.*;
 import request.CreateGameRequest;
 import request.RegisterRequest;
 import request.LoginRequest;
@@ -15,12 +15,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
+import java.net.http.WebSocket;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Map;
 
 public class ServerFacade {
     //each of 7 methods
+    //needs to handle connect to websocket
 
     //make register one first
     public RegisterResponse Register(RegisterRequest req) throws IOException, URISyntaxException {
@@ -224,7 +226,7 @@ public class ServerFacade {
         return response;
     }
 
-    public JoinGameResponse JoinGame(JoinGameRequest req, String authToken) throws IOException, URISyntaxException {
+    public JoinGameResponse JoinGame(JoinGameRequest req, String authToken) throws Exception {
         URL url = new URL("http://localhost:8080/game");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -262,6 +264,7 @@ public class ServerFacade {
             // SERVER RETURNED AN HTTP ERROR
             throw new RuntimeException("HTTP error");
         }
+
         return response;
     }
 }

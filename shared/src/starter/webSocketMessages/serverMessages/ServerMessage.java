@@ -16,6 +16,12 @@ public class ServerMessage {
         ERROR,
         NOTIFICATION
     }
+    //make similar switch statement for these
+    String message;
+    //stores message....
+
+    //Load game would have a game json string of the game, so client can use it and print it....
+    //error just has a message
 
     public ServerMessage(ServerMessageType type) {
         this.serverMessageType = type;
@@ -23,6 +29,11 @@ public class ServerMessage {
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
+    }
+
+    public String getMessage() {return message;}
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override
