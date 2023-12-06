@@ -10,7 +10,7 @@ public class Game implements ChessGame {
      * no args constructor
      */
     public Game() {
-
+        board = new Board();
     }
     @Override
     public TeamColor getTeamTurn() {

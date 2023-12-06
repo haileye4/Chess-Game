@@ -7,6 +7,7 @@ public class Knight extends Piece{
     private ChessGame.TeamColor teamColor;
 
     public Knight(ChessGame.TeamColor myTeamColor) { //constructor
+        super(PieceType.KNIGHT);
         this.teamColor = myTeamColor;
     }
 

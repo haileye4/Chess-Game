@@ -47,7 +47,9 @@ public class DrawBoard{
         }
 
         printColHeader(out);
-        out.print(SET_BG_COLOR_WHITE);
+
+        System.out.println(RESET_TEXT_COLOR);
+        System.out.println(RESET_BG_COLOR);
     }
 
     public static void drawChessboardWhite(PrintStream out, ChessBoard board) {
@@ -72,7 +74,9 @@ public class DrawBoard{
         }
 
         printColHeaderWhite(out);
-        out.print(SET_BG_COLOR_WHITE);
+
+        System.out.println(RESET_TEXT_COLOR);
+        System.out.println(RESET_BG_COLOR);
     }
 
     private static void printColHeader(PrintStream out) {

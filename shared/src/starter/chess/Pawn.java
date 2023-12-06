@@ -7,6 +7,7 @@ public class Pawn extends Piece{
     private ChessGame.TeamColor teamColor;
     private boolean firstMove = true;
     public Pawn(ChessGame.TeamColor myTeamColor) { //constructor
+        super(PieceType.PAWN);
         this.teamColor = myTeamColor;
         firstMove = true;
     }

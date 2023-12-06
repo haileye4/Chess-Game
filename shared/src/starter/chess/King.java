@@ -5,9 +5,9 @@ import java.util.Collection;
 
 public class King extends Piece implements Cloneable {
     private ChessGame.TeamColor teamColor;
-    PieceType type = PieceType.KING;
 
     public King(ChessGame.TeamColor myTeamColor) { //constructor
+        super(PieceType.KING);
         this.teamColor = myTeamColor;
     }
 

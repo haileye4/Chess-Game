@@ -111,11 +111,12 @@ public class WebsocketRequestHandler {
 
         String message = new Gson().toJson(serverMessage);
 
-        /*var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
+        var removeList = new ArrayList<Connection>();
+
+        for (var c : connectionsByGameId.get(gameID)) {
             if (c.session.isOpen()) {
-                if (!c.visitorName.equals(excludeVisitorName)) {
-                    c.send(notification.toString());
+                if (!c.getAuthToken().equals(connection.getAuthToken())) {
+                    c.send(message);
                 }
             } else {
                 removeList.add(c);
@@ -124,14 +125,15 @@ public class WebsocketRequestHandler {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.visitorName);
-        }*/
-        connectionsByGameId.get(gameID).remove(connection);
+            connectionsByGameId.get(gameID).remove(c);
+            connectionsByAuthToken.remove(connection.getAuthToken());
+        }
+        /*connectionsByGameId.get(gameID).remove(connection);
 
         //serialize it into JSON form
         for (Connection user: connectionsByGameId.get(gameID)) {
             user.send(message);
-        }
+        }*/
     }
 
     private void resign(Connection connection, String message) {
@@ -144,6 +146,10 @@ public class WebsocketRequestHandler {
         }
         public static void sendError(RemoteEndpoint Remote, String unknownUser) throws IOException {
             Remote.sendString(unknownUser);
+        }
+
+        public String getAuthToken() {
+            return authToken;
         }
     }
 

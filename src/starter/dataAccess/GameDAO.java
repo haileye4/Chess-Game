@@ -93,9 +93,9 @@ public class GameDAO {
                 //var game = new Gson().fromJson(json, chess.Game.class);
                 var builder = new GsonBuilder();
 
-                Gson gson = builder.registerTypeAdapter(ChessGame.class, new ChessGameAdapter())
-                        .registerTypeAdapter(ChessBoard.class, new ChessBoardAdapter())
-                        .registerTypeAdapter(ChessPiece.class, new ChessPieceAdapter())
+                Gson gson = builder.registerTypeAdapter(ChessGame.class, new typeAdapters.ChessGameAdapter())
+                        .registerTypeAdapter(ChessBoard.class, new typeAdapters.ChessBoardAdapter())
+                        .registerTypeAdapter(ChessPiece.class, new typeAdapters.ChessPieceAdapter())
                         .create();
 
                 var game = gson.fromJson(json, chess.Game.class);
@@ -139,9 +139,9 @@ public class GameDAO {
                     //var game = new Gson().fromJson(json, chess.Game.class);
                     var builder = new GsonBuilder();
 
-                    Gson gson = builder.registerTypeAdapter(ChessGame.class, new ChessGameAdapter())
-                            .registerTypeAdapter(ChessBoard.class, new ChessBoardAdapter())
-                            .registerTypeAdapter(ChessPiece.class, new ChessPieceAdapter())
+                    Gson gson = builder.registerTypeAdapter(ChessGame.class, new typeAdapters.ChessGameAdapter())
+                            .registerTypeAdapter(ChessBoard.class, new typeAdapters.ChessBoardAdapter())
+                            .registerTypeAdapter(ChessPiece.class, new typeAdapters.ChessPieceAdapter())
                             .create();
 
                     var game = gson.fromJson(json, chess.Game.class);

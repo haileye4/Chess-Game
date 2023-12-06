@@ -6,6 +6,8 @@ import java.util.Objects;
 public abstract class Piece implements ChessPiece  {
     ChessPosition position;
 
+    private final ChessPiece.PieceType type;
+
     //public Piece(ChessPosition spot) {
       //  this.position = spot;
     //}
@@ -13,8 +15,8 @@ public abstract class Piece implements ChessPiece  {
     /**
      * no args constructor
      */
-    public Piece() {
-
+    public Piece(ChessPiece.PieceType type) {
+        this.type = type;
     }
 
     @Override
@@ -34,7 +36,9 @@ public abstract class Piece implements ChessPiece  {
     public abstract ChessGame.TeamColor getTeamColor();
 
     @Override
-    public abstract PieceType getPieceType();
+    public PieceType getPieceType() {
+        return type;
+    }
 
     //public abstract void setPieceType();
 

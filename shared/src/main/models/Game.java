@@ -74,7 +74,7 @@ public class Game {
      * basic constructor
      */
     public Game() {
-
+        game = new chess.Game();
     }
 
     /**

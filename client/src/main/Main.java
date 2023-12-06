@@ -1,7 +1,10 @@
 import ChessUI.DrawBoard;
+import chess.Board;
+import chess.ChessBoard;
 import chess.ChessGame;
 //import dataAccess.AuthDAO;
 import dataAccess.AuthDAO;
+import dataAccess.GameDAO;
 import models.Game;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -419,7 +422,7 @@ public class Main {
             System.out.print(RESET_TEXT_ITALIC);
             System.out.print(RESET_TEXT_BOLD_FAINT);
 
-            inGame(authToken, gameID);
+            inGame(authToken, gameID, playerColor);
 
         } catch (RuntimeException ex) {
             System.out.print(SET_TEXT_BOLD);
@@ -473,9 +476,17 @@ public class Main {
         System.out.println("\n");
     }
 
-    public static void inGame(String authToken, int gameID) throws Exception {
-        DrawBoard.printBoards();
-        System.out.println("\n");
+    public static void inGame(String authToken, int gameID, ChessGame.TeamColor team) throws Exception {
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+        ChessBoard board = myGame.getGameBoard();
+
+        if (team == ChessGame.TeamColor.WHITE) {
+            DrawBoard.drawChessboardWhite(System.out, board);
+        } else if (team == ChessGame.TeamColor.BLACK) {
+            DrawBoard.drawChessboard(System.out, board);
+            //means just draw a black chessboard...
+        }
 
         //if joined game successfully
         System.out.println("connecting to websocket...");
@@ -508,6 +519,15 @@ public class Main {
             // Process user choice
             switch (option) {
                 case 1:
+                    myGame = games.find(gameID);
+                    board = myGame.getGameBoard();
+
+                    if (team == ChessGame.TeamColor.WHITE) {
+                        DrawBoard.drawChessboardWhite(System.out, board);
+                    } else if (team == ChessGame.TeamColor.BLACK) {
+                        DrawBoard.drawChessboard(System.out, board);
+                        //means just draw a black chessboard...
+                    }
                     break;
                 case 2:
                     break;

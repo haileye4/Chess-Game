@@ -7,6 +7,7 @@ public class Bishop extends Piece {
     private ChessGame.TeamColor teamColor;
 
     public Bishop(ChessGame.TeamColor myTeamColor) { //constructor
+        super(PieceType.BISHOP);
         this.teamColor = myTeamColor;
     }
 

@@ -7,6 +7,7 @@ public class Rook extends Piece{
     private ChessGame.TeamColor teamColor;
 
     public Rook(ChessGame.TeamColor myTeamColor) { //constructor
+        super(PieceType.ROOK);
         this.teamColor = myTeamColor;
     }
 
