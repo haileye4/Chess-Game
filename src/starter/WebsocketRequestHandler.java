@@ -77,7 +77,7 @@ public class WebsocketRequestHandler {
         String username = command.getUsername();
 
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        serverMessage.setMessage(username + " has joined the game!");
+        serverMessage.setMessage("\n" + username + " has joined the game!");
 
         String message = new Gson().toJson(serverMessage);
 
@@ -85,7 +85,11 @@ public class WebsocketRequestHandler {
         if (connectionsByGameId.get(gameID) == null) {
             connectionsByGameId.put(gameID, new ArrayList<>());
             connectionsByGameId.get(gameID).add(connection);
+        } else {
+            connectionsByGameId.get(gameID).add(connection);
         }
+
+        System.out.println("New connection size now that they've joined game: " + connectionsByGameId.get(gameID).size());
 
         //serialize it into JSON form
         for (Connection user: connectionsByGameId.get(gameID)) {
@@ -111,29 +115,18 @@ public class WebsocketRequestHandler {
 
         String message = new Gson().toJson(serverMessage);
 
-        var removeList = new ArrayList<Connection>();
-
         for (var c : connectionsByGameId.get(gameID)) {
-            if (c.session.isOpen()) {
-                if (!c.getAuthToken().equals(connection.getAuthToken())) {
-                    c.send(message);
-                }
-            } else {
-                removeList.add(c);
+            if (!c.getAuthToken().equals(connection.getAuthToken())) {
+                c.send(message);
             }
         }
 
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connectionsByGameId.get(gameID).remove(c);
-            connectionsByAuthToken.remove(connection.getAuthToken());
-        }
-        /*connectionsByGameId.get(gameID).remove(connection);
+        // Remove the connection that is about to leave
+        connectionsByGameId.get(gameID).remove(connection);
+        connectionsByAuthToken.remove(connection.getAuthToken());
 
-        //serialize it into JSON form
-        for (Connection user: connectionsByGameId.get(gameID)) {
-            user.send(message);
-        }*/
+        System.out.println("New connection size in game: " + connectionsByGameId.get(gameID).size());
+        System.out.println("Connections total now: " + connectionsByAuthToken.size());
     }
 
     private void resign(Connection connection, String message) {

@@ -104,6 +104,7 @@ public class Main {
     }
 
     public static void displayMenu() {
+        System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.println("Menu:");
         System.out.println("1. Register");
         System.out.println("2. Login");
@@ -154,6 +155,7 @@ public class Main {
 
     public static void login() throws IOException, URISyntaxException, SQLException {
         System.out.println("\n");
+        System.out.print(SET_TEXT_COLOR_WHITE);
         scanner.nextLine();
         // Get username
         System.out.println("Logging in user...");
@@ -249,6 +251,7 @@ public class Main {
                     System.out.print(RESET_TEXT_BOLD_FAINT);
                     System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     listGames(authToken);
                     break;
                 case 2:
@@ -258,6 +261,7 @@ public class Main {
                     System.out.print(RESET_TEXT_BOLD_FAINT);
                     System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     createGame(authToken);
                     break;
                 case 3:
@@ -267,6 +271,7 @@ public class Main {
                     System.out.print(RESET_TEXT_BOLD_FAINT);
                     System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     joinGame(authToken);
                     break;
                 case 4:
@@ -276,6 +281,7 @@ public class Main {
                     System.out.print(RESET_TEXT_BOLD_FAINT);
                     System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     joinGameObserver(authToken);
                     break;
                 case 5:
@@ -285,6 +291,7 @@ public class Main {
                     System.out.print(RESET_TEXT_BOLD_FAINT);
                     System.out.print(RESET_TEXT_COLOR);
                     System.out.println("\n");
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     postLoginHelp();
                     break;
                 case 6:
@@ -304,6 +311,7 @@ public class Main {
     }
 
     public static void displayPostLoginMenu() {
+        System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.println("Menu:");
         System.out.println("1. List Games");
         System.out.println("2. Create Game");
@@ -319,6 +327,7 @@ public class Main {
     }
 
     public static void listGames(String authToken) throws SQLException, IOException, URISyntaxException {
+        System.out.print(SET_TEXT_COLOR_WHITE);
         ListGamesResponse response = server.ListGames(authToken);
         System.out.print(SET_TEXT_BOLD);
 
@@ -349,6 +358,7 @@ public class Main {
         System.out.println("Creating a new game...");
         System.out.print(RESET_TEXT_BOLD_FAINT);
         System.out.print(RESET_TEXT_COLOR);
+        System.out.print(SET_TEXT_COLOR_WHITE);
 
         System.out.println("\n");
         System.out.print("Enter your new game name: ");
@@ -376,7 +386,7 @@ public class Main {
             System.out.println("\n");
             return;
         }
-
+        System.out.print(SET_TEXT_COLOR_WHITE);
         boolean validInput = false;
         int selectedGame;
         ChessGame.TeamColor playerColor = null;
@@ -393,7 +403,7 @@ public class Main {
                 System.out.print(RESET_TEXT_COLOR);
                 return;
             }
-
+            System.out.print(SET_TEXT_COLOR_WHITE);
             System.out.println("Select the team color you wish to play: ");
             System.out.println("Options: black or white\n");
             String teamColor = scanner.nextLine();
@@ -421,7 +431,7 @@ public class Main {
             System.out.println("Game number " + selectedGame + " Joined as " + playerColor + " player!");
             System.out.print(RESET_TEXT_ITALIC);
             System.out.print(RESET_TEXT_BOLD_FAINT);
-
+            System.out.print(SET_TEXT_COLOR_WHITE);
             inGame(authToken, gameID, playerColor);
 
         } catch (RuntimeException ex) {
@@ -430,6 +440,7 @@ public class Main {
             System.out.println("Error: team color already taken.");
             System.out.print(RESET_TEXT_BOLD_FAINT);
             System.out.print(RESET_TEXT_COLOR);
+            System.out.print(SET_TEXT_COLOR_WHITE);
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -455,6 +466,7 @@ public class Main {
         System.out.println("Game number " + selectedGame + " Joined as an observer!");
         System.out.print(RESET_TEXT_ITALIC);
         System.out.print(RESET_TEXT_BOLD_FAINT);
+        System.out.print(SET_TEXT_COLOR_WHITE);
 
         //DrawBoard.drawChessboard(System.out, allGames.get(selectedGame - 1).getGameBoard());
         DrawBoard.printBoards();
@@ -473,10 +485,12 @@ public class Main {
         System.out.println("Else, join a game from the list as a player or an observer. Play and enjoy!");
         System.out.println("When you are done, logout.");
         System.out.print(RESET_TEXT_COLOR);
+        System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.println("\n");
     }
 
     public static void inGame(String authToken, int gameID, ChessGame.TeamColor team) throws Exception {
+        System.out.print(SET_TEXT_COLOR_WHITE);
         GameDAO games = new GameDAO();
         Game myGame = games.find(gameID);
         ChessBoard board = myGame.getGameBoard();
@@ -549,6 +563,7 @@ public class Main {
     }
 
     public static void gameChoices() {
+        System.out.print(SET_TEXT_COLOR_WHITE);
         System.out.println("Game Menu:");
         System.out.println("1. Redraw Chess Board");
         System.out.println("2. Make Move");

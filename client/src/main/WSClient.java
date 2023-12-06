@@ -8,6 +8,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Scanner;
 
+import static ChessUI.EscapeSequences.RESET_TEXT_COLOR;
+import static ChessUI.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
+
 @ClientEndpoint
 public class WSClient extends Endpoint {
     public Session session;
@@ -45,6 +48,7 @@ public class WSClient extends Endpoint {
 
     public void send(UserGameCommand msg) throws Exception {
         System.out.println("about to send command to server...");
+        //Is there any way for me to do this and WAIT? until it is done?? ! this one beloe
         this.session.getBasicRemote().sendText(new Gson().toJson(msg));
 
         if (msg.getCommandType() == UserGameCommand.CommandType.LEAVE) {
@@ -57,7 +61,9 @@ public class WSClient extends Endpoint {
     }
 
     public void notify(String message) {
+        System.out.print(SET_TEXT_COLOR_MAGENTA);
         System.out.println(message);
+        System.out.print(RESET_TEXT_COLOR);
     }
 
     public void error(){
