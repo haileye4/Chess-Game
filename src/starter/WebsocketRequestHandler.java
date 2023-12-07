@@ -1,7 +1,15 @@
+import chess.Board;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
+import dataAccess.GameDAO;
 import models.AuthToken;
+import models.Game;
+import models.User;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -12,10 +20,7 @@ import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @WebSocket
 public class WebsocketRequestHandler {
@@ -32,20 +37,22 @@ public class WebsocketRequestHandler {
         var connection = getConnection(command.getAuthString(), session);
 
         System.out.println("determining command type...");
+
         if (connection!= null) {
             switch (command.getCommandType()) {
                 case JOIN_PLAYER -> join(connection, command);
-                case JOIN_OBSERVER -> observe(connection, message);
+                case JOIN_OBSERVER -> observe(connection, command);
                 case MAKE_MOVE -> move(connection, message);
                 case LEAVE -> leave(connection, command);
                 case RESIGN -> resign(connection, message);
             }
         } else {
+            System.out.println("error bro...");
             Connection.sendError(session.getRemote(), "unknown user");
         }
     }
 
-    private Connection getConnection(String authToken, Session session) throws SQLException, DataAccessException {
+    private Connection getConnection(String authToken, Session session) throws SQLException, DataAccessException, IOException {
         Connection connection = connectionsByAuthToken.get(authToken);
 
         if(connection == null) {
@@ -60,6 +67,14 @@ public class WebsocketRequestHandler {
             if(valid) {
                 connection = new Connection(authToken, session);
                 connectionsByAuthToken.put(authToken, connection);
+            } else {
+                System.out.println("AuthToken is not valid.");
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                serverMessage.setErrorMessage("Bad authToken");
+                serverMessage.setMessage("Bad authToken");
+                String stringMessage = new Gson().toJson(serverMessage);
+
+                session.getRemote().sendString(stringMessage);
             }
         }
 
@@ -71,10 +86,45 @@ public class WebsocketRequestHandler {
         System.out.println("A session has connected...");
     }
 
-    private void join(Connection connection, UserGameCommand command) throws IOException {
+    private void join(Connection connection, UserGameCommand command) throws IOException, SQLException, DataAccessException {
+        //ACCESS DAO FROM SERVER
         System.out.println("entered join function in server...");
+        System.out.println(command.getGameID());
         int gameID = command.getGameID();
-        String username = command.getUsername();
+        String authToken = command.getAuthString();
+
+        AuthDAO tokens = new AuthDAO();
+        String username = tokens.findUsername(authToken);
+
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+
+        if (myGame == null) {
+            System.out.println("GAME IS NULL");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Game does not exist");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        //if trying to join an already taken team TEST CASES ONLY USE AUTHTOKEN
+        if (command.getPlayerColor() == ChessGame.TeamColor.WHITE && myGame.getWhiteUsername() != null
+                && !Objects.equals(myGame.getWhiteUsername(), username)) {
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Team already taken");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        } else if (command.getPlayerColor() == ChessGame.TeamColor.BLACK && myGame.getBlackUsername() != null
+                && !Objects.equals(myGame.getBlackUsername(), username)) {
+            System.out.println("BLACK TEAM ERROR");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Team already taken");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
 
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         serverMessage.setMessage("\n" + username + " has joined the game!");
@@ -94,12 +144,80 @@ public class WebsocketRequestHandler {
         //serialize it into JSON form
         for (Connection user: connectionsByGameId.get(gameID)) {
             System.out.println("sending messages to all users...");
-            user.send(message);
+            if (!user.getAuthToken().equals(connection.getAuthToken())) {
+                user.send(message);
+            } else { //send a load game to the user who just joined...
+
+                ChessGame chessGame = myGame.getGame();
+                ChessBoard board = chessGame.getBoard();
+
+                ServerMessage rootMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                rootMessage.setGame(chessGame);
+
+                if (Objects.equals(myGame.getWhiteUsername(), username)) {
+                    rootMessage.setTeamColor(ChessGame.TeamColor.WHITE);
+                } else if (Objects.equals(myGame.getBlackUsername(), username)) {
+                    rootMessage.setTeamColor(ChessGame.TeamColor.BLACK);
+                }
+
+                String rootStringMessage = new Gson().toJson(rootMessage);
+                user.send(rootStringMessage);
+            }
         }
     }
 
-    private void observe(Connection connection, String message) {
+    private void observe(Connection connection, UserGameCommand command) throws SQLException, DataAccessException, IOException {
+        int gameID = command.getGameID();
+        String authToken = command.getAuthString();
+        AuthDAO tokens = new AuthDAO();
+        String username = tokens.findUsername(authToken);
 
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+
+        if (myGame == null) {
+            System.out.println("GAME IS NULL");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Game does not exist");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        serverMessage.setMessage("\n" + username + " has joined the game as an observer!");
+
+        String message = new Gson().toJson(serverMessage);
+
+        //if the game is not in the list, put it in the list.
+        if (connectionsByGameId.get(gameID) == null) {
+            connectionsByGameId.put(gameID, new ArrayList<>());
+            connectionsByGameId.get(gameID).add(connection);
+        } else {
+            connectionsByGameId.get(gameID).add(connection);
+        }
+
+        System.out.println("New connection size now that they've joined as observer: " + connectionsByGameId.get(gameID).size());
+
+        //serialize it into JSON form
+        for (Connection user: connectionsByGameId.get(gameID)) {
+            System.out.println("sending messages to all users...");
+            if (!user.getAuthToken().equals(connection.getAuthToken())) {
+                user.send(message);
+            } else { //send a load game to the user who just joined...
+
+                ChessGame chessGame = myGame.getGame();
+                ChessBoard board = chessGame.getBoard();
+
+                ServerMessage rootMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+                rootMessage.setGame(chessGame);
+
+                rootMessage.setTeamColor(ChessGame.TeamColor.BLACK);
+
+                String rootStringMessage = new Gson().toJson(rootMessage);
+                user.send(rootStringMessage);
+            }
+        }
     }
 
     private void move(Connection connection, String message) {
@@ -112,7 +230,6 @@ public class WebsocketRequestHandler {
 
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         serverMessage.setMessage(username + " has left the game.");
-
         String message = new Gson().toJson(serverMessage);
 
         for (var c : connectionsByGameId.get(gameID)) {

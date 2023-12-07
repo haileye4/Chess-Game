@@ -1,5 +1,7 @@
 package webSocketMessages.serverMessages;
 
+import chess.ChessGame;
+
 import java.util.Objects;
 
 /**
@@ -11,6 +13,14 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
 
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
@@ -18,6 +28,9 @@ public class ServerMessage {
     }
     //make similar switch statement for these
     String message;
+    String errorMessage;
+    ChessGame game;
+    ChessGame.TeamColor teamColor;
     //stores message....
 
     //Load game would have a game json string of the game, so client can use it and print it....
@@ -34,6 +47,21 @@ public class ServerMessage {
     public String getMessage() {return message;}
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public ChessGame getGame() {
+        return game;
+    }
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
+    public ChessGame.TeamColor getTeamColor() {
+        return teamColor;
+    }
+
+    public void setTeamColor(ChessGame.TeamColor teamColor) {
+        this.teamColor = teamColor;
     }
 
     @Override

@@ -17,5 +17,6 @@
     <orderEntry type="module" module-name="shared" />
     <orderEntry type="library" name="mysql.connector.java" level="project" />
     <orderEntry type="library" name="libs" level="project" />
+    <orderEntry type="module" module-name="client" />
   </component>
 </module>

@@ -1,4 +1,10 @@
+import ChessUI.DrawBoard;
+import chess.Board;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -30,12 +36,19 @@ public class WSClient extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             public void onMessage(String message) { //server message
                 //deserialize JSON back to a server message object type and do something about it
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                var builder = new GsonBuilder();
+                Gson gson = builder.registerTypeAdapter(ChessGame.class, new typeAdapters.ChessGameAdapter())
+                        .registerTypeAdapter(ChessBoard.class, new typeAdapters.ChessBoardAdapter())
+                        .registerTypeAdapter(ChessPiece.class, new typeAdapters.ChessPieceAdapter())
+                        .create();
+
+                //var game = gson.fromJson(json, chess.Game.class);
+                ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
 
                 switch (serverMessage.getServerMessageType()) {
                     case NOTIFICATION -> WSClient.this.notify(serverMessage.getMessage());
-                    case ERROR -> WSClient.this.error();
-                    case LOAD_GAME -> WSClient.this.loadGame();
+                    case ERROR -> WSClient.this.error(serverMessage.getErrorMessage());
+                    case LOAD_GAME -> WSClient.this.loadGame(serverMessage.getGame(), serverMessage.getTeamColor());
                 }
                 //switch statement here
 
@@ -66,11 +79,23 @@ public class WSClient extends Endpoint {
         System.out.print(RESET_TEXT_COLOR);
     }
 
-    public void error(){
-
+    public void error(String message){
+        System.out.print(SET_TEXT_COLOR_MAGENTA);
+        System.out.println(message);
+        System.out.print(RESET_TEXT_COLOR);
     }
 
-    public void loadGame(){
+    public void loadGame(ChessGame game, ChessGame.TeamColor team){
+        System.out.println("Load Game Message Received...");
 
+        /*ChessBoard board = game.getBoard();
+
+        if (team == ChessGame.TeamColor.WHITE) {
+            DrawBoard.drawChessboardWhite(System.out, board);
+        } else if (team == ChessGame.TeamColor.BLACK) {
+            DrawBoard.drawChessboard(System.out, board);
+            //means just draw a black chessboard...
+        }*/
+        //get game out of message
     }
 }

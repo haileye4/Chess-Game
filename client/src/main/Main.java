@@ -491,9 +491,12 @@ public class Main {
 
     public static void inGame(String authToken, int gameID, ChessGame.TeamColor team) throws Exception {
         System.out.print(SET_TEXT_COLOR_WHITE);
+
         GameDAO games = new GameDAO();
         Game myGame = games.find(gameID);
         ChessBoard board = myGame.getGameBoard();
+
+        ChessGame chessGame = myGame.getGame(); //will use this variable to continuously update and play the game
 
         if (team == ChessGame.TeamColor.WHITE) {
             DrawBoard.drawChessboardWhite(System.out, board);
@@ -510,7 +513,7 @@ public class Main {
         AuthDAO tokens = new AuthDAO();
         String username = tokens.findUsername(authToken);
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.JOIN_PLAYER,
-                authToken, gameID, username);
+                authToken, gameID, username, team);
         System.out.println("sending join_player command...");
         socket.send(command);
 
@@ -518,6 +521,9 @@ public class Main {
         int option;
         do {
             //output the menu
+            myGame = games.find(gameID);
+            chessGame = myGame.getGame();
+
             gameChoices();
             System.out.print("Enter an option (1-6): ");
 
@@ -533,7 +539,6 @@ public class Main {
             // Process user choice
             switch (option) {
                 case 1:
-                    myGame = games.find(gameID);
                     board = myGame.getGameBoard();
 
                     if (team == ChessGame.TeamColor.WHITE) {
@@ -544,15 +549,21 @@ public class Main {
                     }
                     break;
                 case 2:
+                    if (chessGame.getTeamTurn() != team) {
+                        System.out.print(SET_TEXT_COLOR_RED);
+                        System.out.println("\nError: Not your turn! Wait for team " + team + "!\n");
+                        System.out.print(RESET_TEXT_COLOR);
+                    }
                     break;
                 case 3:
                     break;
                 case 4:
                     break;
                 case 5:
+                    gameHelp();
                     break;
                 case 6:
-                    leaveGame(socket, authToken, gameID, username);
+                    leaveGame(socket, authToken, gameID, username, team);
                     // Add your Quit logic here or simply break out of the loop
                     break;
                 default:
@@ -570,13 +581,27 @@ public class Main {
         System.out.println("3. Highlight Legal Moves");
         System.out.println("4. Resign");
         System.out.println("5. Help");
-        System.out.println("6. Leave");
+        System.out.println("6. Leave\n");
+    }
+
+    public static void gameHelp() {
+        System.out.print(SET_TEXT_COLOR_MAGENTA);
+        System.out.print(SET_TEXT_ITALIC);
+        System.out.println("\nWelcome to your chess game! Select 1 of the 6 options to manage your game.\n");
+        System.out.println("1. Redraw Chess Board: redraw the current updated board in the game\n");
+        System.out.println("2. Make Move: if it s your turn, you may make a valid chess move.\n");
+        System.out.println("3. Highlight Legal Moves: highlight all the possible moves you can make next.\n " +
+                "Valid moves are highlighted in green, and your current position is highlighted in yellow.\n");
+        System.out.println("4. Resign: give up and with this option, the other person wins the game.\n");
+        System.out.println("6. Leave: when you are finished with your game, or want a break, this exits the game.\n\n");
+        System.out.print(RESET_TEXT_ITALIC);
+        System.out.print(SET_TEXT_COLOR_WHITE);
     }
 
     public static void leaveGame(WSClient socket, String authToken,
-                                 int gameID, String username) throws Exception {
+                                 int gameID, String username, ChessGame.TeamColor team) throws Exception {
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
-                authToken, gameID, username);
+                authToken, gameID, username, team);
 
         socket.send(command);
     }

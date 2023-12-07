@@ -4,6 +4,7 @@ import chess.*;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 public class ChessPieceAdapter implements JsonDeserializer<ChessPiece> {
     @Override
@@ -12,15 +13,17 @@ public class ChessPieceAdapter implements JsonDeserializer<ChessPiece> {
 
         //switch statement or if else statement
         //if king, call guy depending on piece
-        if (pieceType == "KING") {
+        System.out.println(pieceType);
+
+        if (Objects.equals(pieceType, "KING")) {
             return jsonDeserializationContext.deserialize(jsonElement, King.class);
-        } else if (pieceType == "QUEEN") {
+        } else if (Objects.equals(pieceType, "QUEEN")) {
             return jsonDeserializationContext.deserialize(jsonElement, Queen.class);
-        } else if (pieceType == "KNIGHT") {
+        } else if (Objects.equals(pieceType, "KNIGHT")) {
             return jsonDeserializationContext.deserialize(jsonElement, Knight.class);
-        } else if (pieceType == "PAWN") {
+        } else if (Objects.equals(pieceType, "PAWN")) {
             return jsonDeserializationContext.deserialize(jsonElement, Pawn.class);
-        } else if (pieceType == "BISHOP") {
+        } else if (Objects.equals(pieceType, "BISHOP")) {
             return jsonDeserializationContext.deserialize(jsonElement, Bishop.class);
         } else {
                 return jsonDeserializationContext.deserialize(jsonElement, Rook.class);
