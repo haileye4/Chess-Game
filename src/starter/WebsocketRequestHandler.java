@@ -27,8 +27,16 @@ public class WebsocketRequestHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         //if session is not in list, MAKE A CONNECTION!
+        var builder = new GsonBuilder();
+        Gson gson = builder.registerTypeAdapter(ChessGame.class, new typeAdapters.ChessGameAdapter())
+                .registerTypeAdapter(ChessBoard.class, new typeAdapters.ChessBoardAdapter())
+                .registerTypeAdapter(ChessPiece.class, new typeAdapters.ChessPieceAdapter())
+                .registerTypeAdapter(ChessMove.class, new typeAdapters.ChessMoveAdapter())
+                .registerTypeAdapter(ChessPosition.class, new typeAdapters.ChessPositionAdapter())
+                .create();
 
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+
+        UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         //turn back into userGameCommand
 
         var connection = getConnection(command.getAuthString(), session);
