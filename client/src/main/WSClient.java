@@ -97,7 +97,9 @@ public class WSClient extends Endpoint {
             //means just draw a black chessboard...
         }
 
-        System.out.println(message);
+        System.out.print(SET_TEXT_COLOR_MAGENTA);
+        System.out.println("\n" + message + "\n");
+        System.out.print(RESET_TEXT_COLOR);
         //get game out of message
     }
 }

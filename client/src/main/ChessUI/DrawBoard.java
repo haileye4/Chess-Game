@@ -3,6 +3,7 @@ package ChessUI;
 import chess.*;
 
 import java.io.PrintStream;
+import java.util.Collection;
 
 import static ChessUI.EscapeSequences.*;
 
@@ -77,6 +78,10 @@ public class DrawBoard{
 
         System.out.println(RESET_TEXT_COLOR);
         System.out.println(RESET_BG_COLOR);
+    }
+
+    public static void drawValidMoves(Collection<ChessMove> moves, ChessBoard board) {
+
     }
 
     private static void printColHeader(PrintStream out) {

@@ -557,6 +557,7 @@ public class Main {
                     makeMove(socket, chessGame, team, gameID, authToken, username);
                     break;
                 case 3:
+                    highlightLegalMoves(gameID);
                     break;
                 case 4:
                     break;
@@ -733,5 +734,42 @@ public class Main {
                 authToken, gameID, username, team, chessMove);
         socket.send(moveCommand);
 
+    }
+
+    public static void highlightLegalMoves(int gameID) throws SQLException, DataAccessException {
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+
+        ChessGame chessGame = myGame.getGame();
+
+        System.out.print(SET_TEXT_COLOR_GREEN);
+        System.out.println("To see all legal moves, please first enter the position of the piece you would like to move.");
+        System.out.println("Ex. A7");
+        System.out.print(SET_TEXT_COLOR_WHITE);
+
+        String move = scanner.nextLine();
+        //scanner.nextLine();
+
+        if (move.length() > 2) {
+            System.out.println("Invalid input, enter a valid position next time");
+            return;
+        }
+        char ColChar = move.charAt(0); // Get the first character
+        char RowChar = move.charAt(1); // Get the second character
+
+        // Convert column character to column index (assuming 'A' to 'H' for columns)
+        int col = ColChar - 'A';
+        // Convert row character to row index (assuming '1' to '8' for ranks)
+        int row = Character.getNumericValue(RowChar) - 1;
+
+        if (col < 0 || col > 7 || row < 0 || row > 7) {
+            System.out.println("Invalid input, enter a valid position next time");
+            return;
+        }
+
+        ChessPosition piecePosition = new Position(row, col);
+        Collection<ChessMove> validMoves = chessGame.validMoves(piecePosition);
+
+        DrawBoard.drawValidMoves(validMoves, chessGame.getBoard());
     }
 }
