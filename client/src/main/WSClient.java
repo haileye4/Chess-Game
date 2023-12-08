@@ -48,7 +48,7 @@ public class WSClient extends Endpoint {
                 switch (serverMessage.getServerMessageType()) {
                     case NOTIFICATION -> WSClient.this.notify(serverMessage.getMessage());
                     case ERROR -> WSClient.this.error(serverMessage.getErrorMessage());
-                    case LOAD_GAME -> WSClient.this.loadGame(serverMessage.getGame(), serverMessage.getTeamColor());
+                    case LOAD_GAME -> WSClient.this.loadGame(serverMessage.getGame(), serverMessage.getTeamColor(), serverMessage.getMessage());
                 }
                 //switch statement here
 
@@ -60,7 +60,7 @@ public class WSClient extends Endpoint {
     }
 
     public void send(UserGameCommand msg) throws Exception {
-        System.out.println("about to send command to server...");
+        //System.out.println("about to send command to server...");
         //Is there any way for me to do this and WAIT? until it is done?? ! this one beloe
         this.session.getBasicRemote().sendText(new Gson().toJson(msg));
 
@@ -85,17 +85,19 @@ public class WSClient extends Endpoint {
         System.out.print(RESET_TEXT_COLOR);
     }
 
-    public void loadGame(ChessGame game, ChessGame.TeamColor team){
-        System.out.println("Load Game Message Received...");
+    public void loadGame(ChessGame game, ChessGame.TeamColor team, String message){
+        //System.out.println("Load Game Message Received...");
 
-        /*ChessBoard board = game.getBoard();
+        ChessBoard board = game.getBoard();
 
         if (team == ChessGame.TeamColor.WHITE) {
             DrawBoard.drawChessboardWhite(System.out, board);
         } else if (team == ChessGame.TeamColor.BLACK) {
             DrawBoard.drawChessboard(System.out, board);
             //means just draw a black chessboard...
-        }*/
+        }
+
+        System.out.println(message);
         //get game out of message
     }
 }

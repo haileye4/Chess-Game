@@ -1,7 +1,4 @@
-import chess.Board;
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataAccess.AuthDAO;
@@ -42,7 +39,7 @@ public class WebsocketRequestHandler {
             switch (command.getCommandType()) {
                 case JOIN_PLAYER -> join(connection, command);
                 case JOIN_OBSERVER -> observe(connection, command);
-                case MAKE_MOVE -> move(connection, message);
+                case MAKE_MOVE -> move(connection, command);
                 case LEAVE -> leave(connection, command);
                 case RESIGN -> resign(connection, message);
             }
@@ -109,15 +106,13 @@ public class WebsocketRequestHandler {
         }
 
         //if trying to join an already taken team TEST CASES ONLY USE AUTHTOKEN
-        if (command.getPlayerColor() == ChessGame.TeamColor.WHITE && myGame.getWhiteUsername() != null
-                && !Objects.equals(myGame.getWhiteUsername(), username)) {
+        if (command.getPlayerColor() == ChessGame.TeamColor.WHITE && !Objects.equals(myGame.getWhiteUsername(), username)) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             serverMessage.setErrorMessage("Team already taken");
             String stringMessage = new Gson().toJson(serverMessage);
             connection.send(stringMessage);
             return;
-        } else if (command.getPlayerColor() == ChessGame.TeamColor.BLACK && myGame.getBlackUsername() != null
-                && !Objects.equals(myGame.getBlackUsername(), username)) {
+        } else if (command.getPlayerColor() == ChessGame.TeamColor.BLACK && !Objects.equals(myGame.getBlackUsername(), username)) {
             System.out.println("BLACK TEAM ERROR");
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             serverMessage.setErrorMessage("Team already taken");
@@ -220,7 +215,36 @@ public class WebsocketRequestHandler {
         }
     }
 
-    private void move(Connection connection, String message) {
+    private void move(Connection connection, UserGameCommand command) throws SQLException, DataAccessException, IOException {
+        ChessMove chessMove = command.getMove();
+        int gameID = command.getGameID();
+
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+        ChessGame chessGame = myGame.getGame();
+
+        try {
+            chessGame.makeMove(chessMove);
+        } catch (InvalidMoveException e) {
+            System.out.println("Invalid move!");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Invalid chess move");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        //else, valid move, and let's update it to the DAO.
+        myGame.setGame(chessGame);
+        games.update(myGame);
+
+        for (var c : connectionsByGameId.get(gameID)) {
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+            serverMessage.setMessage(command.getUsername() + " just made a move.");
+            serverMessage.setGame(chessGame);
+            String stringMessage = new Gson().toJson(serverMessage);
+            c.send(stringMessage);
+        }
 
     }
 

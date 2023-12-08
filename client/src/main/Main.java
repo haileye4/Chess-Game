@@ -1,9 +1,8 @@
 import ChessUI.DrawBoard;
-import chess.Board;
-import chess.ChessBoard;
-import chess.ChessGame;
+import chess.*;
 //import dataAccess.AuthDAO;
 import dataAccess.AuthDAO;
+import dataAccess.DataAccessException;
 import dataAccess.GameDAO;
 import models.Game;
 import request.CreateGameRequest;
@@ -51,6 +50,7 @@ public class Main {
         do {
             //output the menu
             displayMenu();
+            System.out.println(SET_TEXT_COLOR_WHITE);
             System.out.print("Enter an option (1-4): ");
 
             while (!scanner.hasNextInt()) {
@@ -69,7 +69,7 @@ public class Main {
                     System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Register.");
                     System.out.print(RESET_TEXT_BOLD_FAINT);
-                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     register();
                     break;
                 case 2:
@@ -77,7 +77,7 @@ public class Main {
                     System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Login.");
                     System.out.print(RESET_TEXT_BOLD_FAINT);
-                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     login();
                     break;
                 case 3:
@@ -85,7 +85,7 @@ public class Main {
                     System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Help.");
                     System.out.print(RESET_TEXT_BOLD_FAINT);
-                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     help();
                     break;
                 case 4:
@@ -93,7 +93,7 @@ public class Main {
                     System.out.print(SET_TEXT_COLOR_MAGENTA);
                     System.out.println("You selected Quit. Exiting...");
                     System.out.print(RESET_TEXT_BOLD_FAINT);
-                    System.out.print(RESET_TEXT_COLOR);
+                    System.out.print(SET_TEXT_COLOR_WHITE);
                     System.out.println("\n");
                     // Add your Quit logic here or simply break out of the loop
                     break;
@@ -250,7 +250,6 @@ public class Main {
                     System.out.println("You selected List Games.");
                     System.out.print(RESET_TEXT_BOLD_FAINT);
                     System.out.print(RESET_TEXT_COLOR);
-                    System.out.println("\n");
                     System.out.print(SET_TEXT_COLOR_WHITE);
                     listGames(authToken);
                     break;
@@ -348,7 +347,6 @@ public class Main {
         }
         System.out.print(RESET_TEXT_BOLD_FAINT);
         allGames = response.getGames();
-        System.out.println("\n");
     }
 
     public static void createGame(String authToken) throws IOException, URISyntaxException {
@@ -460,17 +458,17 @@ public class Main {
         JoinGameRequest request = new JoinGameRequest(null, allGames.get(selectedGame - 1).getGameID());
         JoinGameResponse response = server.JoinGame(request, authToken);
 
-        // Display the entered information
-        System.out.print(SET_TEXT_ITALIC);
-        System.out.print(SET_TEXT_BOLD);
-        System.out.println("Game number " + selectedGame + " Joined as an observer!");
-        System.out.print(RESET_TEXT_ITALIC);
-        System.out.print(RESET_TEXT_BOLD_FAINT);
         System.out.print(SET_TEXT_COLOR_WHITE);
 
-        //DrawBoard.drawChessboard(System.out, allGames.get(selectedGame - 1).getGameBoard());
-        DrawBoard.printBoards();
-        System.out.println("\n");
+        int gameID = allGames.get(selectedGame - 1).getGameID();
+
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+        ChessBoard board = myGame.getGameBoard();
+
+        ChessGame chessGame = myGame.getGame(); //will use this variable to continuously update and play the game
+
+        observingGame(authToken, gameID, board);
     }
 
     public static void postLoginHelp(){
@@ -498,12 +496,12 @@ public class Main {
 
         ChessGame chessGame = myGame.getGame(); //will use this variable to continuously update and play the game
 
-        if (team == ChessGame.TeamColor.WHITE) {
+        /*if (team == ChessGame.TeamColor.WHITE) {
             DrawBoard.drawChessboardWhite(System.out, board);
         } else if (team == ChessGame.TeamColor.BLACK) {
             DrawBoard.drawChessboard(System.out, board);
             //means just draw a black chessboard...
-        }
+        }*/
 
         //if joined game successfully
         System.out.println("connecting to websocket...");
@@ -516,6 +514,13 @@ public class Main {
                 authToken, gameID, username, team);
         System.out.println("sending join_player command...");
         socket.send(command);
+
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            // Handle the exception if needed
+            e.printStackTrace();
+        }
 
         //SWITCH STATEMENT of moves...
         int option;
@@ -549,11 +554,7 @@ public class Main {
                     }
                     break;
                 case 2:
-                    if (chessGame.getTeamTurn() != team) {
-                        System.out.print(SET_TEXT_COLOR_RED);
-                        System.out.println("\nError: Not your turn! Wait for team " + team + "!\n");
-                        System.out.print(RESET_TEXT_COLOR);
-                    }
+                    makeMove(socket, chessGame, team, gameID, authToken, username);
                     break;
                 case 3:
                     break;
@@ -598,11 +599,139 @@ public class Main {
         System.out.print(SET_TEXT_COLOR_WHITE);
     }
 
+    public static void observingGame(String authToken, int gameID, ChessBoard board) throws Exception {
+        WSClient socket = new WSClient();
+
+        //send join game message on the webSocket
+        AuthDAO tokens = new AuthDAO();
+        String username = tokens.findUsername(authToken);
+        UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.JOIN_OBSERVER,
+                authToken, gameID, username);
+        //System.out.println("sending join_player command...");
+        socket.send(command);
+
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            // Handle the exception if needed
+            e.printStackTrace();
+        }
+
+        boolean leave = false;
+
+        //scanner with while loop...
+        //just say game is over and tell them to leave
+
+        do {
+            System.out.print(SET_TEXT_COLOR_WHITE);
+            System.out.print("Type anything to leave the game...");
+
+            String exit = scanner.nextLine();
+
+            if (!exit.isEmpty()) {
+                leave = true;
+                UserGameCommand leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                        authToken, gameID, username);
+
+                socket.send(leaveCommand);
+            }
+
+        } while (!leave);
+
+
+        System.out.print("\n");
+    }
+
     public static void leaveGame(WSClient socket, String authToken,
                                  int gameID, String username, ChessGame.TeamColor team) throws Exception {
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
                 authToken, gameID, username, team);
 
         socket.send(command);
+    }
+
+    public static void makeMove(WSClient socket, ChessGame chessGame, ChessGame.TeamColor team, int gameID, String authToken, String username) throws Exception {
+        if (chessGame.getTeamTurn() != team) {
+            System.out.println(chessGame.getTeamTurn() + " and " + team);
+            System.out.print(SET_TEXT_COLOR_RED);
+            System.out.println("\nError: Not your turn! Wait for team " + chessGame.getTeamTurn() + "!\n");
+            System.out.print(RESET_TEXT_COLOR);
+            return;
+        }
+
+        System.out.print(SET_TEXT_COLOR_GREEN);
+        System.out.println("To make a move, please first enter the position of the piece you would like to move, then the ending position.");
+        System.out.println("Include a promotion piece afterward if applicable.");
+        System.out.println("Format: start-end-promotion\n");
+        System.out.println("Ex. A7-A8-KNIGHT or A4-A5\n");
+        System.out.print(SET_TEXT_COLOR_WHITE);
+
+        String move = scanner.nextLine();
+        //scanner.nextLine();
+
+        if (move.length() > 12) {
+            System.out.println("Invalid input, enter a valid position next time");
+            return;
+        }
+        char startColChar = move.charAt(0); // Get the first character
+        char startRowChar = move.charAt(1); // Get the second character
+
+        // Convert column character to column index (assuming 'A' to 'H' for columns)
+        int colStart = startColChar - 'A';
+        // Convert row character to row index (assuming '1' to '8' for ranks)
+        int rowStart = Character.getNumericValue(startRowChar) - 1;
+
+        if (colStart < 0 || colStart > 7 || rowStart < 0 || rowStart > 7) {
+            System.out.println("Invalid input, enter a valid position next time");
+            return;
+        }
+
+
+        char endColChar = move.charAt(3); // Get the first character
+        char endRowChar = move.charAt(4); // Get the second character
+
+        // Convert column character to column index (assuming 'A' to 'H' for columns)
+        int colEnd = endColChar - 'A';
+        // Convert row character to row index (assuming '1' to '8' for ranks)
+        int rowEnd = Character.getNumericValue(endRowChar) - 1;
+
+        if (colEnd < 0 || colEnd > 7 || rowEnd < 0 || rowEnd > 7) {
+            System.out.println("Invalid input, enter a valid position next time");
+            return;
+        }
+
+        ChessPosition startingSpot = new Position(rowStart, colStart);
+        ChessPosition endingSpot = new Position(rowEnd, colEnd);
+
+        ChessMove chessMove = new Move(startingSpot, endingSpot);
+
+        //check for promotion piece
+        ChessPiece.PieceType promotion;
+        if (move.length() > 6) {
+            String promotionPiece = move.substring(6);
+
+            if (promotionPiece.equals("KNIGHT")) {
+                promotion = ChessPiece.PieceType.KNIGHT;
+            } else if (promotionPiece.equals("BISHOP")) {
+                promotion = ChessPiece.PieceType.BISHOP;
+            } else if (promotionPiece.equals("QUEEN")) {
+                promotion = ChessPiece.PieceType.QUEEN;
+            } else if (promotionPiece.equals("ROOK")) {
+                promotion = ChessPiece.PieceType.ROOK;
+            } else if (promotionPiece.equals("PAWN")) {
+                promotion = ChessPiece.PieceType.PAWN;
+            } else {
+                System.out.println("Invalid input. Remember to use all capitals for promotion piece, or check for spelling.");
+                System.out.println("A King cannot be a promotion piece.\n");
+                return;
+            }
+
+            chessMove = new Move(startingSpot, endingSpot, promotion);
+        }
+
+        UserGameCommand moveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,
+                authToken, gameID, username, team, chessMove);
+        socket.send(moveCommand);
+
     }
 }

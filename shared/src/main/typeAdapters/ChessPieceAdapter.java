@@ -13,7 +13,6 @@ public class ChessPieceAdapter implements JsonDeserializer<ChessPiece> {
 
         //switch statement or if else statement
         //if king, call guy depending on piece
-        System.out.println(pieceType);
 
         if (Objects.equals(pieceType, "KING")) {
             return jsonDeserializationContext.deserialize(jsonElement, King.class);
