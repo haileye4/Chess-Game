@@ -1,9 +1,6 @@
 import ChessUI.DrawBoard;
 import chess.*;
-//import dataAccess.AuthDAO;
-import dataAccess.AuthDAO;
 import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
 import models.Game;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -462,13 +459,7 @@ public class Main {
 
         int gameID = allGames.get(selectedGame - 1).getGameID();
 
-        GameDAO games = new GameDAO();
-        Game myGame = games.find(gameID);
-        ChessBoard board = myGame.getGameBoard();
-
-        ChessGame chessGame = myGame.getGame(); //will use this variable to continuously update and play the game
-
-        observingGame(authToken, gameID, board);
+        observingGame(authToken, gameID);
     }
 
     public static void postLoginHelp(){
@@ -490,28 +481,13 @@ public class Main {
     public static void inGame(String authToken, int gameID, ChessGame.TeamColor team) throws Exception {
         System.out.print(SET_TEXT_COLOR_WHITE);
 
-        GameDAO games = new GameDAO();
-        Game myGame = games.find(gameID);
-        ChessBoard board = myGame.getGameBoard();
-
-        ChessGame chessGame = myGame.getGame(); //will use this variable to continuously update and play the game
-
-        /*if (team == ChessGame.TeamColor.WHITE) {
-            DrawBoard.drawChessboardWhite(System.out, board);
-        } else if (team == ChessGame.TeamColor.BLACK) {
-            DrawBoard.drawChessboard(System.out, board);
-            //means just draw a black chessboard...
-        }*/
-
         //if joined game successfully
         System.out.println("connecting to websocket...");
         WSClient socket = new WSClient();
 
         //send join game message on the webSocket
-        AuthDAO tokens = new AuthDAO();
-        String username = tokens.findUsername(authToken);
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.JOIN_PLAYER,
-                authToken, gameID, username, team);
+                authToken, gameID, team);
         System.out.println("sending join_player command...");
         socket.send(command);
 
@@ -526,15 +502,13 @@ public class Main {
         int option;
         do {
             //output the menu
-            myGame = games.find(gameID);
-            chessGame = myGame.getGame();
 
             gameChoices();
-            System.out.print("Enter an option (1-6): ");
+            System.out.print("Enter an option (1-6): \n");
 
             while (!scanner.hasNextInt()) {
                 System.out.println("Invalid input. Please enter a number between 1 and 6.");
-                System.out.print("Enter an option (1-6): ");
+                System.out.print("Enter an option (1-6): \n");
                 scanner.next();
             }
 
@@ -544,28 +518,31 @@ public class Main {
             // Process user choice
             switch (option) {
                 case 1:
-                    board = myGame.getGameBoard();
+                    UserGameCommand loadGame = new UserGameCommand(UserGameCommand.CommandType.LOAD_GAME, authToken, gameID, team);
+                    socket.send(loadGame);
 
-                    if (team == ChessGame.TeamColor.WHITE) {
-                        DrawBoard.drawChessboardWhite(System.out, board);
-                    } else if (team == ChessGame.TeamColor.BLACK) {
-                        DrawBoard.drawChessboard(System.out, board);
-                        //means just draw a black chessboard...
+                    try {
+                        Thread.sleep(75);
+                    } catch (InterruptedException e) {
+                        // Handle the exception if needed
+                        e.printStackTrace();
                     }
+
                     break;
                 case 2:
-                    makeMove(socket, chessGame, team, gameID, authToken, username);
+                    makeMove(socket, team, gameID, authToken);
                     break;
                 case 3:
-                    highlightLegalMoves(gameID);
+                    highlightLegalMoves(socket, authToken, gameID, team);
                     break;
                 case 4:
+                    resign(socket, authToken, gameID, team);
                     break;
                 case 5:
                     gameHelp();
                     break;
                 case 6:
-                    leaveGame(socket, authToken, gameID, username, team);
+                    leaveGame(socket, authToken, gameID, team);
                     // Add your Quit logic here or simply break out of the loop
                     break;
                 default:
@@ -600,14 +577,12 @@ public class Main {
         System.out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    public static void observingGame(String authToken, int gameID, ChessBoard board) throws Exception {
+    public static void observingGame(String authToken, int gameID) throws Exception {
         WSClient socket = new WSClient();
 
         //send join game message on the webSocket
-        AuthDAO tokens = new AuthDAO();
-        String username = tokens.findUsername(authToken);
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.JOIN_OBSERVER,
-                authToken, gameID, username);
+                authToken, gameID);
         //System.out.println("sending join_player command...");
         socket.send(command);
 
@@ -625,17 +600,32 @@ public class Main {
 
         do {
             System.out.print(SET_TEXT_COLOR_WHITE);
-            System.out.print("Type anything to leave the game...");
+            System.out.print("Type EXIT to leave the game...");
+            System.out.print("Or enter REDRAW to redraw the board...");
 
             String exit = scanner.nextLine();
 
-            if (!exit.isEmpty()) {
+            if (Objects.equals(exit, "EXIT")) {
                 leave = true;
                 UserGameCommand leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
-                        authToken, gameID, username);
+                        authToken, gameID);
 
                 socket.send(leaveCommand);
+            } else if (Objects.equals(exit, "REDRAW")) {
+                UserGameCommand redraw = new UserGameCommand(UserGameCommand.CommandType.LOAD_GAME,
+                        authToken, gameID);
+                socket.send(redraw);
+
+                try {
+                    Thread.sleep(75);
+                } catch (InterruptedException e) {
+                    // Handle the exception if needed
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.print("Please enter one of the two valid options...");
             }
+
 
         } while (!leave);
 
@@ -644,22 +634,14 @@ public class Main {
     }
 
     public static void leaveGame(WSClient socket, String authToken,
-                                 int gameID, String username, ChessGame.TeamColor team) throws Exception {
+                                 int gameID, ChessGame.TeamColor team) throws Exception {
         UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
-                authToken, gameID, username, team);
+                authToken, gameID, team);
 
         socket.send(command);
     }
 
-    public static void makeMove(WSClient socket, ChessGame chessGame, ChessGame.TeamColor team, int gameID, String authToken, String username) throws Exception {
-        if (chessGame.getTeamTurn() != team) {
-            System.out.println(chessGame.getTeamTurn() + " and " + team);
-            System.out.print(SET_TEXT_COLOR_RED);
-            System.out.println("\nError: Not your turn! Wait for team " + chessGame.getTeamTurn() + "!\n");
-            System.out.print(RESET_TEXT_COLOR);
-            return;
-        }
-
+    public static void makeMove(WSClient socket, ChessGame.TeamColor team, int gameID, String authToken) throws Exception {
         System.out.print(SET_TEXT_COLOR_GREEN);
         System.out.println("To make a move, please first enter the position of the piece you would like to move, then the ending position.");
         System.out.println("Include a promotion piece afterward if applicable.");
@@ -731,17 +713,19 @@ public class Main {
         }
 
         UserGameCommand moveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,
-                authToken, gameID, username, team, chessMove);
+                authToken, gameID, team, chessMove);
         socket.send(moveCommand);
+
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            // Handle the exception if needed
+            e.printStackTrace();
+        }
 
     }
 
-    public static void highlightLegalMoves(int gameID) throws SQLException, DataAccessException {
-        GameDAO games = new GameDAO();
-        Game myGame = games.find(gameID);
-
-        ChessGame chessGame = myGame.getGame();
-
+    public static void highlightLegalMoves(WSClient socket, String authToken, int gameID, ChessGame.TeamColor team) throws Exception {
         System.out.print(SET_TEXT_COLOR_GREEN);
         System.out.println("To see all legal moves, please first enter the position of the piece you would like to move.");
         System.out.println("Ex. A7");
@@ -768,8 +752,22 @@ public class Main {
         }
 
         ChessPosition piecePosition = new Position(row, col);
-        Collection<ChessMove> validMoves = chessGame.validMoves(piecePosition);
 
-        DrawBoard.drawValidMoves(validMoves, chessGame.getBoard());
+        UserGameCommand highlightMovesCommand = new UserGameCommand(UserGameCommand.CommandType.HIGHLIGHT_MOVES,
+                authToken, gameID, piecePosition, team);
+        socket.send(highlightMovesCommand);
+
+        try {
+            Thread.sleep(75);
+        } catch (InterruptedException e) {
+            // Handle the exception if needed
+            e.printStackTrace();
+        }
+    }
+
+    public static void resign(WSClient socket, String authToken, Integer gameID, ChessGame.TeamColor team) throws Exception {
+        UserGameCommand moveCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN,
+                authToken, gameID, team);
+        socket.send(moveCommand);
     }
 }

@@ -55,7 +55,6 @@ public class DrawBoard{
 
     public static void drawChessboardWhite(PrintStream out, ChessBoard board) {
         printColHeaderWhite(out);
-
         printRowHeader(out, 8);
 
         for (int row = 7; row >= 0; row--) {
@@ -80,8 +79,94 @@ public class DrawBoard{
         System.out.println(RESET_BG_COLOR);
     }
 
-    public static void drawValidMoves(Collection<ChessMove> moves, ChessBoard board) {
+    public static void drawValidMoves(PrintStream out, Collection<ChessMove> moves, ChessBoard board, ChessGame.TeamColor team) {
+        if (team == ChessGame.TeamColor.BLACK) {
+            printColHeader(out);
+            printRowHeader(out, 1);
 
+            for (int row = 0; row < BOARD_SIZE; row++) {
+                for (int col = 0; col < BOARD_SIZE; col++) {
+                    //decide if square is a valid move we are going to highlight
+                    boolean highlightSquare = false;
+                    boolean startingSpot = false;
+
+                    for (ChessMove move : moves) {
+                        if (move.getStartPosition().getRow() == row && move.getStartPosition().getColumn() == col) {
+                            startingSpot = true;
+                        }
+
+                        if (move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == col) {
+                            highlightSquare = true;
+                            break;
+                        }
+                    }
+
+                    if (startingSpot) {
+                        drawYellowSquare(out, row, col, (Board) board);
+                    } else if (highlightSquare) {
+                        drawGreenSquare(out, row, col, (Board) board);
+                    } else {
+                        drawSquare(out, row, col, (Board) board);
+                    }
+
+                    if (col == BOARD_SIZE - 1) {
+                        resetColors(out);
+                        out.print(SET_BG_COLOR_WHITE);
+                    }
+                }
+                printRowHeader(out, row + 1);
+                out.println(); // Move to the next row
+
+                if (row != 7) {
+                    printRowHeader(out, row+2); //start next row...
+                }
+            }
+            printColHeader(out);
+
+        } else if (team == ChessGame.TeamColor.WHITE) {
+            printColHeaderWhite(out);
+            printRowHeader(out, 8);
+            for (int row = 7; row >= 0; row--) {
+                for (int col = 7; col >= 0; col--) {
+                    //decide if square is a valid move we are going to highlight
+                    boolean highlightSquare = false;
+                    boolean startingSpot = false;
+
+                    for (ChessMove move : moves) {
+                        if (move.getStartPosition().getRow() == row && move.getStartPosition().getColumn() == col) {
+                            startingSpot = true;
+                        }
+
+                        if (move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == col) {
+                            highlightSquare = true;
+                            break;
+                        }
+                    }
+
+                    if (startingSpot) {
+                        drawYellowSquare(out, row, col, (Board) board);
+                    } else if (highlightSquare) {
+                        drawGreenSquare(out, row, col, (Board) board);
+                    } else {
+                        drawSquare(out, row, col, (Board) board);
+                    }
+
+                    if (col == 0) {
+                        resetColors(out);
+                    }
+                }
+                printRowHeader(out, row + 1);
+                out.println(); // Move to the next row
+
+                if (row != 0) {
+                    printRowHeader(out, row); //start next row...
+                }
+            }
+            printColHeaderWhite(out);
+        }
+
+        System.out.println(SET_TEXT_COLOR_WHITE);
+        System.out.println(RESET_BG_COLOR);
     }
 
     private static void printColHeader(PrintStream out) {
@@ -179,6 +264,28 @@ public class DrawBoard{
         printPiece(out, row, col, board);
     }
 
+    private static void drawGreenSquare(PrintStream out, int row, int col, Board board) {
+        if ((row + col) % 2 == 0) {
+            setLightGreen(out);
+        } else {
+            setDarkGreen(out);
+        }
+
+        // Draw the pieces according to the matrix
+        printPiece(out, row, col, board);
+    }
+
+    private static void drawYellowSquare(PrintStream out, int row, int col, Board board) {
+        if ((row + col) % 2 == 0) {
+            setYellow(out);
+        } else {
+            setYellow(out);
+        }
+
+        // Draw the pieces according to the matrix
+        printPiece(out, row, col, board);
+    }
+
     private static void printPiece(PrintStream out, int row, int col, Board board) {
 
         ChessPosition pos = new Position(row, col);
@@ -227,6 +334,21 @@ public class DrawBoard{
 
     private static void setGray(PrintStream out) {
         out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setLightGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setDarkGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setYellow(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
         out.print(SET_TEXT_COLOR_BLACK);
     }
 

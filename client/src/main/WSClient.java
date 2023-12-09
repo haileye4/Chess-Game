@@ -1,8 +1,5 @@
 import ChessUI.DrawBoard;
-import chess.Board;
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import webSocketMessages.serverMessages.ServerMessage;
@@ -12,14 +9,16 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Scanner;
 
-import static ChessUI.EscapeSequences.RESET_TEXT_COLOR;
-import static ChessUI.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
+import static ChessUI.EscapeSequences.*;
 
 @ClientEndpoint
 public class WSClient extends Endpoint {
     public Session session;
+    //make an object called mygame
 
     public WSClient() throws DeploymentException, IOException, URISyntaxException {
         try {
@@ -40,6 +39,7 @@ public class WSClient extends Endpoint {
                 Gson gson = builder.registerTypeAdapter(ChessGame.class, new typeAdapters.ChessGameAdapter())
                         .registerTypeAdapter(ChessBoard.class, new typeAdapters.ChessBoardAdapter())
                         .registerTypeAdapter(ChessPiece.class, new typeAdapters.ChessPieceAdapter())
+                        .registerTypeAdapter(ChessPosition.class, new typeAdapters.ChessPositionAdapter())
                         .create();
 
                 //var game = gson.fromJson(json, chess.Game.class);
@@ -48,13 +48,10 @@ public class WSClient extends Endpoint {
                 switch (serverMessage.getServerMessageType()) {
                     case NOTIFICATION -> WSClient.this.notify(serverMessage.getMessage());
                     case ERROR -> WSClient.this.error(serverMessage.getErrorMessage());
-                    case LOAD_GAME -> WSClient.this.loadGame(serverMessage.getGame(), serverMessage.getTeamColor(), serverMessage.getMessage());
+                    case LOAD_GAME -> WSClient.this.loadGame(serverMessage.getGame(), serverMessage.getTeamColor(),
+                            serverMessage.getMessage(), serverMessage.getPosition());
+                    case HIGHLIGHT_MOVES -> WSClient.this.highlight(serverMessage);
                 }
-                //switch statement here
-
-                //ex. print out notification
-                //ex. if you have a load game, draw board with old function I made
-                //if trying ot load game, like get a board to draw it, here I will need type adapters again
             }
         });
     }
@@ -82,24 +79,35 @@ public class WSClient extends Endpoint {
     public void error(String message){
         System.out.print(SET_TEXT_COLOR_MAGENTA);
         System.out.println(message);
-        System.out.print(RESET_TEXT_COLOR);
+        System.out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    public void loadGame(ChessGame game, ChessGame.TeamColor team, String message){
-        //System.out.println("Load Game Message Received...");
-
+    public void loadGame(ChessGame game, ChessGame.TeamColor team, String message, ChessPosition piecePosition){
         ChessBoard board = game.getBoard();
+
+        if (Objects.equals(message, "highlight")) {
+            Collection<ChessMove> validMoves = game.validMoves(piecePosition);
+            DrawBoard.drawValidMoves(System.out, validMoves, game.getBoard(), team);
+            return;
+        }
 
         if (team == ChessGame.TeamColor.WHITE) {
             DrawBoard.drawChessboardWhite(System.out, board);
         } else if (team == ChessGame.TeamColor.BLACK) {
             DrawBoard.drawChessboard(System.out, board);
             //means just draw a black chessboard...
+        } else {
+            DrawBoard.drawChessboard(System.out, board);
         }
+    }
 
-        System.out.print(SET_TEXT_COLOR_MAGENTA);
-        System.out.println("\n" + message + "\n");
-        System.out.print(RESET_TEXT_COLOR);
-        //get game out of message
+    public void highlight(ServerMessage message) {
+        System.out.println("Highlight Method entered!");
+        ChessGame chessGame = message.getGame();
+        ChessPosition piecePosition = message.getPosition();
+        ChessGame.TeamColor team = message.getTeamColor();
+
+        Collection<ChessMove> validMoves = chessGame.validMoves(piecePosition);
+        DrawBoard.drawValidMoves(System.out, validMoves, chessGame.getBoard(), team);
     }
 }

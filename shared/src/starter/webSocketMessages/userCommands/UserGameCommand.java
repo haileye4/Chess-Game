@@ -2,6 +2,8 @@ package webSocketMessages.userCommands;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.util.Objects;
 
@@ -13,10 +15,9 @@ import java.util.Objects;
  */
 public class UserGameCommand {
 
-    public UserGameCommand(CommandType type, String authToken, Integer game, String username, ChessGame.TeamColor team) {
+    public UserGameCommand(CommandType type, String authToken, Integer game, ChessGame.TeamColor team) {
         this.authToken = authToken;
         this.gameID = game;
-        this.username = username;
         this.commandType = type;
         this.playerColor = team;
     }
@@ -28,7 +29,7 @@ public class UserGameCommand {
         this.commandType = type;
     }
 
-    public UserGameCommand(CommandType type, String authToken, Integer game, String username,
+    public UserGameCommand(CommandType type, String authToken, Integer game,
                            ChessGame.TeamColor team, ChessMove move) {
         this.authToken = authToken;
         this.gameID = game;
@@ -38,8 +39,26 @@ public class UserGameCommand {
         this.move = move;
     }
 
+    public UserGameCommand(CommandType commandType, String authToken, int gameID) {
+        this.commandType = commandType;
+        this.authToken = authToken;
+        this.gameID = gameID;
+    }
+
+    public UserGameCommand(CommandType commandType, String authToken, int gameID, ChessPosition piecePosition, ChessGame.TeamColor team) {
+        this.commandType = commandType;
+        this.gameID = gameID;
+        this.piecePosition = piecePosition;
+        this.playerColor = team;
+        this.authToken = authToken;
+    }
+
     public ChessMove getMove() {
         return move;
+    }
+
+    public ChessPosition getPiecePosition() {
+        return piecePosition;
     }
 
     public enum CommandType {
@@ -47,20 +66,23 @@ public class UserGameCommand {
         JOIN_OBSERVER,
         MAKE_MOVE,
         LEAVE,
-        RESIGN
+        RESIGN,
+        HIGHLIGHT_MOVES,
+        LOAD_GAME
     }
 
     protected CommandType commandType;
 
-    private final String authToken;
+    private String authToken;
 
     private final Integer gameID;
 
-    private final String username;
+    private String username;
 
     private ChessGame.TeamColor playerColor;
 
     private ChessMove move;
+    private ChessPosition piecePosition;
 
     public String getAuthString() {
         return authToken;

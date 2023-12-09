@@ -1,6 +1,7 @@
 package webSocketMessages.serverMessages;
 
 import chess.ChessGame;
+import chess.ChessPosition;
 
 import java.util.Objects;
 
@@ -21,15 +22,25 @@ public class ServerMessage {
         this.errorMessage = errorMessage;
     }
 
+    public ChessPosition getPosition() {
+        return position;
+    }
+
+    public void setPosition(ChessPosition position) {
+        this.position = position;
+    }
+
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
-        NOTIFICATION
+        NOTIFICATION,
+        HIGHLIGHT_MOVES
     }
     //make similar switch statement for these
     String message;
     String errorMessage;
     ChessGame game;
+    ChessPosition position;
     ChessGame.TeamColor teamColor;
     //stores message....
 

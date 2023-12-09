@@ -1,3 +1,4 @@
+import ChessUI.DrawBoard;
 import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,13 +17,20 @@ import webSocketMessages.userCommands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+
+import static ChessUI.EscapeSequences.RESET_TEXT_COLOR;
+import static ChessUI.EscapeSequences.SET_TEXT_COLOR_RED;
 
 @WebSocket
 public class WebsocketRequestHandler {
     Map<String, Connection> connectionsByAuthToken = new HashMap<>();
     Map<Integer, List<Connection>> connectionsByGameId = new HashMap<>();
+
+    ArrayList<Game> endedGames = new ArrayList<>();
+    //make a list with all the active games or all the GAMES THAT ARE OVER!!!!
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
@@ -49,7 +57,9 @@ public class WebsocketRequestHandler {
                 case JOIN_OBSERVER -> observe(connection, command);
                 case MAKE_MOVE -> move(connection, command);
                 case LEAVE -> leave(connection, command);
-                case RESIGN -> resign(connection, message);
+                case RESIGN -> resign(connection, command);
+                case HIGHLIGHT_MOVES -> highlight(connection, command);
+                case LOAD_GAME -> loadGame(connection, command);
             }
         } else {
             System.out.println("error bro...");
@@ -172,6 +182,7 @@ public class WebsocketRequestHandler {
     private void observe(Connection connection, UserGameCommand command) throws SQLException, DataAccessException, IOException {
         int gameID = command.getGameID();
         String authToken = command.getAuthString();
+
         AuthDAO tokens = new AuthDAO();
         String username = tokens.findUsername(authToken);
 
@@ -229,7 +240,54 @@ public class WebsocketRequestHandler {
 
         GameDAO games = new GameDAO();
         Game myGame = games.find(gameID);
+
+        if (endedGames.contains(myGame)) {
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Game is over. No more moves can be made.");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
         ChessGame chessGame = myGame.getGame();
+
+        AuthDAO tokens = new AuthDAO();
+        String username = tokens.findUsername(command.getAuthString());
+
+        ChessGame.TeamColor color = null;
+
+        if (Objects.equals(myGame.getWhiteUsername(), username)) {
+            color = ChessGame.TeamColor.WHITE;
+        } else if (Objects.equals(myGame.getBlackUsername(), username)) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+
+        if (chessGame.getTeamTurn() != color) {
+            System.out.println("Not their turn...");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("\nError: Not your turn! Wait for team " + chessGame.getTeamTurn() + "!\n");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        if (chessGame.getBoard().getPiece(chessMove.getStartPosition()) == null) {
+            System.out.println("\"Invalid input: no piece at selected starting spot!\"");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("\"Invalid input: no piece at selected starting spot!\"");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        if (chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor() != color) {
+            System.out.println("Invalid move!");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Invalid: cannot make move for opponent.");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
 
         try {
             chessGame.makeMove(chessMove);
@@ -248,10 +306,74 @@ public class WebsocketRequestHandler {
 
         for (var c : connectionsByGameId.get(gameID)) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-            serverMessage.setMessage(command.getUsername() + " just made a move.");
+            serverMessage.setMessage(username + " just made a move.");
             serverMessage.setGame(chessGame);
+
+            String token = c.getAuthToken();
+            String cUsername = tokens.findUsername(token);
+
+            if (Objects.equals(myGame.getBlackUsername(), cUsername)) {
+                serverMessage.setTeamColor(ChessGame.TeamColor.BLACK);
+            } else if (Objects.equals(myGame.getWhiteUsername(), cUsername)) {
+                serverMessage.setTeamColor(ChessGame.TeamColor.WHITE);
+            } else { //an observer... show from black side
+                serverMessage.setTeamColor(ChessGame.TeamColor.BLACK);
+            }
+
             String stringMessage = new Gson().toJson(serverMessage);
             c.send(stringMessage);
+
+            if (!c.getAuthToken().equals(connection.getAuthToken())) {
+                ServerMessage notifyMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                notifyMessage.setMessage(username + " just made a move.");
+                String notification = new Gson().toJson(notifyMessage);
+                c.send(notification);
+            }
+        }
+
+        if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)
+                || chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+
+            ChessGame.TeamColor loser = null;
+
+            if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+                loser = ChessGame.TeamColor.WHITE;
+            } else if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+                loser = ChessGame.TeamColor.BLACK;
+            }
+
+            for (var c : connectionsByGameId.get(gameID)) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                serverMessage.setMessage(loser + " is in check. ");
+                String notification = new Gson().toJson(serverMessage);
+                c.send(notification);
+            }
+        }
+
+
+        if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)
+                || chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+
+            ChessGame.TeamColor winner = null;
+            ChessGame.TeamColor loser = null;
+
+            if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                winner = ChessGame.TeamColor.BLACK;
+                loser = ChessGame.TeamColor.WHITE;
+            } else if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                winner = ChessGame.TeamColor.WHITE;
+                loser = ChessGame.TeamColor.BLACK;
+            }
+
+            endedGames.add(myGame);
+
+            for (var c : connectionsByGameId.get(gameID)) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                serverMessage.setMessage(loser + " is in checkmate. " + winner + " has won the game!\n" +
+                        "The game is now over.");
+                String notification = new Gson().toJson(serverMessage);
+                c.send(notification);
+            }
         }
 
     }
@@ -278,8 +400,90 @@ public class WebsocketRequestHandler {
         System.out.println("Connections total now: " + connectionsByAuthToken.size());
     }
 
-    private void resign(Connection connection, String message) {
+    private void resign(Connection connection, UserGameCommand command) throws SQLException, DataAccessException, IOException {
+        //user is ending the game
+        AuthDAO tokens = new AuthDAO();
+        String username = tokens.findUsername(command.getAuthString());
 
+        int gameID = command.getGameID();
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+
+        if (endedGames.contains(myGame)) {
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Error: Cannot resign, the game is already over");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        //if
+        String winner = null;
+        if (Objects.equals(myGame.getBlackUsername(), username)) {
+            winner = myGame.getWhiteUsername();
+        } else if (Objects.equals(myGame.getWhiteUsername(), username)) {
+            winner = myGame.getBlackUsername();
+        } else {
+            System.out.println("Cannot resign as an observer");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            serverMessage.setErrorMessage("Error: cannot resign as an observer!");
+            String stringMessage = new Gson().toJson(serverMessage);
+            connection.send(stringMessage);
+            return;
+        }
+
+        for (var c : connectionsByGameId.get(gameID)) {
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            serverMessage.setMessage(username + " has resigned. " + winner + " has won the game!\n" +
+                    "Game is over.");
+            String notification = new Gson().toJson(serverMessage);
+            c.send(notification);
+        }
+
+        endedGames.add(myGame);
+
+
+    }
+
+    private void highlight(Connection connection, UserGameCommand command) throws SQLException, DataAccessException, IOException {
+        System.out.println("Highlight SERVER SIDE!");
+        Integer gameID = command.getGameID();
+        ChessPosition piecePosition = command.getPiecePosition();
+        ChessGame.TeamColor team = command.getPlayerColor();
+
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+
+        ChessGame chessGame = myGame.getGame();
+
+        if (chessGame.getBoard().getPiece(piecePosition) == null) {
+            System.out.println("Invalid input: no piece at selected starting spot!");
+            return;
+        }
+        //otherwise, lets send a message to the client so they can see all valid moves
+        ServerMessage highlightMoves = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        highlightMoves.setTeamColor(team);
+        highlightMoves.setPosition(piecePosition);
+        highlightMoves.setGame(chessGame);
+        highlightMoves.setMessage("highlight");
+
+        String notification = new Gson().toJson(highlightMoves);
+        connection.send(notification);
+    }
+
+    private void loadGame(Connection connection, UserGameCommand command) throws SQLException, DataAccessException, IOException {
+        Integer gameID = command.getGameID();
+
+        GameDAO games = new GameDAO();
+        Game myGame = games.find(gameID);
+        ChessGame chessGame = myGame.getGame();
+
+        ServerMessage loadGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        loadGame.setTeamColor(command.getPlayerColor());
+        loadGame.setGame(chessGame);
+
+        String notification = new Gson().toJson(loadGame);
+        connection.send(notification);
     }
 
     private record Connection(String authToken, Session session) {
